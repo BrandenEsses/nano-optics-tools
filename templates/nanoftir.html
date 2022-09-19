@@ -1,0 +1,21 @@
+{% extends "layout/page.html" %}
+{% set role = role %}
+{% block content %}
+    <style type='text/css'>
+        hr {
+            margin: 2px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='datatable/datatables.css') }}">
+    <h1>NanoFTIR</h1>
+    <h3>Upload an interferogram for analysis</h3>
+    <form method=post enctype=multipart/form-data>
+      <p>
+          <input type=file name=file>
+          <input type=submit value=Upload>
+      </p>
+    </form>
+    {% if img_src %}
+        <img src="/intfg.png">
+    {% endif %}
+{% endblock %}
