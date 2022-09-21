@@ -1,3 +1,4 @@
+import scipy.signal
 from flask import Flask, render_template, request, redirect, session, Blueprint
 from matplotlib import pyplot as plt
 import numpy as np
@@ -23,12 +24,12 @@ def get_data():
     xvals = []
     yvals = []
     for line in tsv_file:
-       xvals.append(float(line[0]))
+       xvals.append(10*float(line[0])/10**4) # Extra factor of 10 due to LabView VI issue
        yvals.append(float(line[1]))
-    yvals = yvals - np.mean(yvals) # Normalize data
-    length_scale = xvals[1] - xvals[0]
     normalxvals = xvals
     normalyvals = yvals
+    yvals = yvals - np.mean(yvals) # Normalize data
+    length_scale = xvals[1] - xvals[0]
     num_data = len(yvals)
     data_length = np.log2(len(yvals))
     is_power_two = np.ceil(data_length) == np.floor(data_length)
@@ -38,28 +39,20 @@ def get_data():
         right_append = np.zeros(np.ceil(num_zeros_add/2).astype(int))
         yvals = np.insert(yvals,0,left_append)
         yvals = np.append(yvals,right_append)
-    new_num_data = len(yvals)
-    yvals_zeros = np.zeros(new_num_data-256)
-    max_location = np.argmax(yvals)
-    max_value = yvals[max_location]
-    half_max_index = np.argmin(yvals - 0.5*max_value)
-    min_index = max_location - 128
-    max_index = max_location + 128
-    slice = yvals[min_index:max_index]
-    yvals_zeros = np.insert(yvals_zeros,min_index,slice)
-    xvals = np.arange(len(yvals)) * length_scale
-    stddev = np.abs(half_max_index - max_location) * length_scale
-    #gaussian = 1/np.sqrt(2*np.pi*stddev**2) * np.exp(-(xvals - max_location*length_scale)**2/(2*stddev**2))
-    error_func = erf(xvals)
-    exponential = np.exp(xvals)
-    #apodization = yvals_zeros*gaussian
-    apodization = error_func * exponential
-    right_half= apodization[max_location:]
-    left_half = np.flip(apodization[:max_location])
-    rotated = np.append(right_half,left_half)
-    #yf = np.absolute(fft(rotated)[0:num_data//2])
-    yf = np.angle(fft(rotated)[0:num_data // 2])
-    xf = fftfreq(num_data, length_scale)[:num_data//2]
+    xvals = np.arange(len(yvals))*length_scale - len(left_append)*length_scale
+    max_square_index = np.argmax(yvals**2)
+    max_square_position = xvals[max_square_index]
+    max_square_value = (yvals[max_square_index])**2
+    half_max_square_position = xvals[np.argmin(abs(yvals**2 - 0.5*max_square_value))]
+    stddev = np.abs(half_max_square_position - max_square_position)
+    error_func = 0.5*(erf((xvals - half_max_square_position + stddev)/(np.sqrt(2)*stddev))+1)
+    exp_tc = np.amax(xvals - np.amin(xvals))/4
+    exponential = np.exp(-1*(xvals - max_square_position)/exp_tc)
+    pure_apodization = error_func * exponential
+    apodization = error_func*exponential*yvals
+    N = len(xvals)
+    yf = np.abs(fft(yvals)[0:N // 2])
+    xf = fftfreq(N,length_scale)[0:N // 2]
     data = (xf, yf, normalxvals, normalyvals)
     return data
 
@@ -71,20 +64,32 @@ def plot_png():
     return Response(output.getvalue(), mimetype='image/png')
 
 def create_figure():
-    xs,ys,xvals,normalyvals = get_data()
+    xf,yf,normalxvals,normalyvals = get_data()
+    xf = xf/2
     fig = Figure()
     axis1 = fig.add_subplot(1, 2, 2)
     axis1.set_title("Spectrum")
-    axis1.set_xlabel("Frequency (au)")
+    axis1.set_xlabel("Wavenumber (cm-1)")
     axis1.set_ylabel("Intensity (au)")
-    axis1.plot(xs, ys)
+    ymax = max(yf)
+    peak_indices,peak_heights_dict = scipy.signal.find_peaks(yf, height=0.9*ymax)
+    peak_heights = peak_heights_dict['peak_heights']
+    peak_indices = peak_indices[np.argsort(peak_heights)]
+    colors = ['r^','y^','g^','b^']
+    i = 0
+    for peak in peak_indices:
+        text = str(round(xf[peak])) + " cm-1"
+        axis1.plot(xf[peak], yf[peak],colors[i], label=text)
+        i += 1
+    axis1.plot(xf, yf)
+    axis1.legend()
     axis2 = fig.add_subplot(1, 2, 1)
     axis2.set_title("Interferogram")
-    axis2.set_xlabel("Position (au)")
-    axis2.set_ylabel("Intensity (au)")
-    axis2.plot(xvals, normalyvals)
+    axis2.set_xlabel("Position (cm)")
+    axis2.set_ylabel("Intensity (V)")
+    axis2.ticklabel_format(axis="y", style="sci", scilimits=(-6, -6))
+    axis2.plot(normalxvals, normalyvals)
     fig.set_dpi(150)
-    #fig.set_size_inches(11.2,6.3)
     fig.set_size_inches(8.8, 4.95)
     fig.tight_layout(pad=2.0)
     return fig
