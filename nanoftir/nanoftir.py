@@ -79,7 +79,10 @@ def create_figure():
     i = 0
     for peak in peak_indices:
         text = str(round(xf[peak])) + " cm-1"
-        axis1.plot(xf[peak], yf[peak],colors[i], label=text)
+        try:
+            axis1.plot(xf[peak], yf[peak],colors[i], label=text)
+        except:
+            continue
         i += 1
     axis1.plot(xf, yf)
     axis1.legend()
