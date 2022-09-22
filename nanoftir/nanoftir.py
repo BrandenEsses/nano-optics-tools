@@ -72,10 +72,10 @@ def create_figure():
     axis1.set_xlabel("Wavenumber (cm-1)")
     axis1.set_ylabel("Intensity (au)")
     ymax = max(yf)
-    peak_indices,peak_heights_dict = scipy.signal.find_peaks(yf,height=0.00001*ymax)
+    peak_indices,peak_heights_dict = scipy.signal.find_peaks(yf,height=0.00001*ymax, distance=50)
     peak_heights = peak_heights_dict['peak_heights']
-    peak_indices = peak_indices[np.flip(np.argsort(peak_heights))][:5]
-    colors = ['r^','y^','g^','b^','m^']
+    peak_indices = peak_indices[np.flip(np.argsort(peak_heights))][:3]
+    colors = ['r^','y^','g^','b^','m^','c^','k^']
     i = 0
     for peak in peak_indices:
         text = str(round(xf[peak])) + " cm-1"
