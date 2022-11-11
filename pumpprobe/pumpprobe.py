@@ -82,9 +82,9 @@ def create_figure():
     e = popt[4]
     fit_string = str(round(a,2)) + "*exp(-t/" + str(round(b,2)) + ") + " + str(round(c,2)) + "*exp(-t/" + str(round(d,2)) + ") + " + str(round(e,2))
     axis3.plot(fit_x, biexponential(fit_x,a,b,c,d,e), linewidth=0.8, label=fit_string)
-    axis3.legend()
-    fig.set_dpi(170)
-    fig.set_size_inches(4.95,12)
+    axis3.legend(loc='lower left')
+    fig.set_dpi(150)
+    fig.set_size_inches(7,20)
     fig.tight_layout(pad=2.0)
     return fig
 
