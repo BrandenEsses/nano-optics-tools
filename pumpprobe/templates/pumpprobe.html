@@ -1,0 +1,27 @@
+{% extends "layout/page.html" %}
+{% set role = role %}
+{% block content %}
+    <style type='text/css'>
+        hr {
+            margin: 2px;
+        }
+    </style>
+    <h1>Pump Probe</h1>
+    <h3>Upload X and Y data from a pump probe scan</h3>
+    <form method=post enctype=multipart/form-data>
+      <p>
+          X
+          <input type=file name=file>
+      </p>
+      <p>
+          Y
+          <input type=file name=file>
+      </p>
+    <p>
+        <input type=submit value=Upload>
+    </p>
+    </form>
+    {% if img_src %}
+        <img src="/pumpprobe/pp1.png">
+    {% endif %}
+{% endblock %}

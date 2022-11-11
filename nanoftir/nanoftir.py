@@ -17,7 +17,7 @@ nanoftir_blueprint = Blueprint('nanoftir', __name__, url_prefix='/nanoftir', tem
 
 file = None
 
-def get_data():
+def get_data_nanoftir():
     global file
     stream = io.StringIO(file.decode("UTF8"), newline=None)
     tsv_file = csv.reader(stream, delimiter="\t")
@@ -53,7 +53,8 @@ def get_data():
     N = len(xvals)
     yf = np.abs(fft(yvals)[0:N // 2])
     xf = fftfreq(N,length_scale)[0:N // 2]
-    data = (xf, yf, normalxvals, normalyvals)
+    x_min_index = np.argmin(np.abs(xf - 500)) # Find index where 500 wavenumbers occurs
+    data = (xf[x_min_index:], yf[x_min_index:], normalxvals, normalyvals)
     return data
 
 @nanoftir_blueprint.route('/intfg.png')
@@ -64,7 +65,7 @@ def plot_png():
     return Response(output.getvalue(), mimetype='image/png')
 
 def create_figure():
-    xf,yf,normalxvals,normalyvals = get_data()
+    xf,yf,normalxvals,normalyvals = get_data_nanoftir()
     xf = xf/2
     fig = Figure()
     axis1 = fig.add_subplot(1, 2, 2)

@@ -10,6 +10,8 @@ from nanoftir.nanoftir import nanoftir_blueprint
 app.register_blueprint(nanoftir_blueprint)
 from calculators.calculators import calculators_blueprint
 app.register_blueprint(calculators_blueprint)
+from pumpprobe.pumpprobe import pumpprobe_blueprint
+app.register_blueprint(pumpprobe_blueprint)
 
 if __name__ == '__main__':
     app.run()
