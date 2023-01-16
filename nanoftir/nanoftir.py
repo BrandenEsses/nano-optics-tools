@@ -29,8 +29,15 @@ def plot():
 
     # First plot just the interferogram
     data = [go.Scatter(x=df['stage_pos_mm'], y=df['amplitude'], mode='markers')]
-    layout = go.Layout(title=r'$\huge\textrm{Interferogram}$', xaxis={'title': r'$\Large\textrm{Stage Position (mm)}$'}, yaxis={'title': r'$\Large\textrm{Amplitude (V)}$'},height=750,width=1000)
+    layout = go.Layout(title=r'$\huge\textrm{Interferogram}$', xaxis={'title': r'$\Large\textrm{Stage Position (mm)}$', 'automargin':True}, yaxis={'title': r'$\Large\textrm{Amplitude (V)}$', 'automargin':True},height=750,width=1000,template="none")
     figure = go.Figure(data=data, layout=layout)
+    figure.update_layout(
+        font=dict(
+            family="Arial",
+            size=22,  # Set the font size here
+            color="Black"
+        )
+    )
     plot1_div = offline.plot(figure, auto_open=False, output_type='div')
 
     # Take FFT of data
@@ -66,7 +73,7 @@ def plot():
     x_min_index = np.argmin(np.abs(xf - 500)) # Find index where 500 wavenumbers occurs
     max_index = np.argmax(yf)
     data = [go.Scatter(x=xf[x_min_index:], y=yf[x_min_index:], mode='markers')]
-    layout = go.Layout(title=r'$\huge\textrm{Spectrum}$', xaxis={'title': r'$\Large\textrm{Wavenumbers }(\textrm{cm}^{-1})$', 'tickformat':"digits"}, yaxis={'title': r'$\Large\textrm{Intensity (AU)}$'},height=750,width=1000)
+    layout = go.Layout(title=r'$\huge\textrm{Spectrum}$', xaxis={'title': r'$\Large\textrm{Wavenumbers }(\textrm{cm}^{-1})$', 'automargin':True, 'tickformat':'digits'}, yaxis={'title': r'$\Large\textrm{Intensity (AU)}$','automargin':True},height=750,width=1000, template="none")
     figure = go.Figure(data=data, layout=layout)
     figure.update_layout(
         font=dict(
