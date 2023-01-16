@@ -1,17 +1,7 @@
-import scipy.signal
 from flask import Flask, render_template, request, redirect, session, Blueprint
-from matplotlib import pyplot as plt
 import numpy as np
 from scipy.fft import fft, fftfreq
 from scipy.special import erf
-import math
-import os, csv
-import io
-import random
-from flask import Response
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-from app import app
 import plotly.graph_objs as go
 import plotly.offline as offline
 import pandas as pd

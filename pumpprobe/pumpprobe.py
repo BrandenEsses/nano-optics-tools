@@ -7,15 +7,11 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from scipy.optimize import curve_fit
 import math
+import plotly.graph_objs as go
+import plotly.offline as offline
+import pandas as pd
 
 pumpprobe_blueprint = Blueprint('pumpprobe', __name__, url_prefix='/pumpprobe', template_folder="templates")
-
-x_file = None
-y_file = None
-num_terms = None
-remove_from_front = None
-remove_from_end = None
-max_cut = None
 
 def exponential(x, a, b, c):
     return a * np.exp(-x/b) + c
@@ -26,38 +22,37 @@ def biexponential(x, a, b, c, d, e):
 def triexponential(x, a, b, c, d, e, f, g):
     return a * np.exp(-x/b) + c * np.exp(-x/d) + e * np.exp(-x/f) + g
 
-def get_data_pumpprobe():
-    global x_file
-    global y_file
-    global remove_from_front
-    global remove_from_end
-    global max_cut
-    x_stream = io.StringIO(x_file.decode("UTF8"), newline=None)
-    x_tsv_file = csv.reader(x_stream, delimiter="\t")
-    y_stream = io.StringIO(y_file.decode("UTF8"), newline=None)
-    y_tsv_file = csv.reader(y_stream, delimiter="\t")
-    xvalues = []
-    yvalues = []
-    stage_positions_mm = []
-    for line in x_tsv_file:
-        stage_positions_mm.append(float(line[0]))
-        xvalues.append(float(line[1]))
-    for line in y_tsv_file:
-        yvalues.append(float(line[1]))
-    ps_spacing = (stage_positions_mm[1] - stage_positions_mm[0]) * 2 / 2.99e11 * 1e12
-    remove_from_front_index = round(remove_from_front/ps_spacing)
-    max_cut = math.floor(len(stage_positions_mm)/2)
-    remove_from_end_index = len(stage_positions_mm) - round(remove_from_end/ps_spacing)
+@pumpprobe_blueprint.route('/',methods=['GET', 'POST'])
+def pumpprobe():  # put application's code here
+    return render_template("pumpprobe.html", figures=False, title="Pump-Probe")
+
+@pumpprobe_blueprint.route('/plot', methods=['POST'])
+def plot():
+    remove_from_front = int(request.form.get("removefront"))
+    remove_from_end = int(request.form.get("removeend"))
+    num_terms = int(request.form.get("fitnum"))
+    files = request.files.getlist("file")
+    dfx = pd.read_csv(files[0],sep='\t',names=["stage_pos_mm", "amplitude","1","2","3","4","5"])
+    dfy = pd.read_csv(files[1], sep='\t', names=["stage_pos_mm", "amplitude","1","2","3","4","5"])
+    xvalues = np.array(dfx["amplitude"])/10**6
+    yvalues = np.array(dfy["amplitude"])/10**6
+    stage_positions_mm = np.array(dfx["stage_pos_mm"])
+    length_scale = stage_positions_mm[1] - stage_positions_mm[0]
+    ps_spacing = length_scale * 2 / 2.99e11 * 1e12
+    remove_from_front_index = round(remove_from_front / ps_spacing)
+    max_cut = math.floor(len(stage_positions_mm) / 2)
+    remove_from_end_index = len(stage_positions_mm) - round(remove_from_end / ps_spacing)
     xvalues = np.flip(xvalues)[remove_from_front_index:remove_from_end_index]
     yvalues = np.flip(yvalues)[remove_from_front_index:remove_from_end_index]
-    rvalues = np.sqrt(np.array(xvalues)**2 + np.array(yvalues)**2)
-    normalized_r = np.array(abs(rvalues - 0.5*max(rvalues)))
+    rvalues = np.sqrt(np.array(xvalues) ** 2 + np.array(yvalues) ** 2)
+    normalized_r = np.array(abs(rvalues - 0.5 * max(rvalues)))
     max_index = np.argmax(rvalues)
-    max_index = np.argmax(rvalues) + round(0.1*abs(max_index-len(xvalues)))
+    max_index = np.argmax(rvalues) + round(0.1 * abs(max_index - len(xvalues)))
     min_index = max_index + np.argmin(rvalues[max_index:])
     t0_index = np.argmin(normalized_r[:max_index])
     t0_position = stage_positions_mm[t0_index]
-    stage_positions_ps = ((np.array(stage_positions_mm) - t0_position) * 2 / 2.99e11 * 1e12)[remove_from_front_index:remove_from_end_index]
+    stage_positions_ps = ((np.array(stage_positions_mm) - t0_position) * 2 / 2.99e11 * 1e12)[
+                         remove_from_front_index:remove_from_end_index]
     fit_y = np.array(rvalues[max_index:min_index])
     fit_x = np.array(stage_positions_ps[max_index:min_index])
     try:
@@ -74,39 +69,7 @@ def get_data_pumpprobe():
                 popt.append(0)
             else:
                 popt.append(1)
-    return (stage_positions_ps, xvalues, yvalues, rvalues, fit_x, popt)
 
-@pumpprobe_blueprint.route('/pp1.png')
-def plot_png():
-    fig = create_figure()
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype='image/png')
-
-def create_figure():
-    stage_positions_ps,xvalues,yvalues,rvalues,fit_x,popt = get_data_pumpprobe()
-    fig = Figure()
-    axis1 = fig.add_subplot(4, 1, 1)
-    axis1.set_title("X Values")
-    axis1.set_xlabel("Pump Delay (ps)")
-    axis1.set_ylabel("Intensity (µV)")
-    axis1.plot(stage_positions_ps, xvalues,linewidth=0.8)
-    axis2 = fig.add_subplot(4, 1, 2)
-    axis2.set_title("Y Values")
-    axis2.set_xlabel("Pump Delay (ps)")
-    axis2.set_ylabel("Intensity (µV)")
-    axis2.plot(stage_positions_ps, yvalues,linewidth=0.8)
-    axis3 = fig.add_subplot(4, 1, 3)
-    axis3.set_title("Amplitude")
-    axis3.set_xlabel("Pump Delay (ps)")
-    axis3.set_ylabel("Intensity (µV)")
-    axis3.plot(stage_positions_ps, rvalues,linewidth=0.8)
-    # axis3.set_xticks(np.arange(stage_positions_ps[0],stage_positions_ps[-1]+10,10))
-    axis3 = fig.add_subplot(4, 1, 4)
-    axis3.set_title("Fitted Amplitude")
-    axis3.set_xlabel("Pump Delay (ps)")
-    axis3.set_ylabel("Intensity (µV)")
-    axis3.plot(stage_positions_ps, rvalues, linewidth=0.8, label="Data")
     if num_terms == 1:
         a = popt[0]
         b = popt[1]
@@ -114,7 +77,23 @@ def create_figure():
         fit_string = str(round(a, 2)) + "*exp(-t/" + str(round(b, 2)) + ") + " + str(round(c, 2))
         if (a,b,c) == (0,1,0):
             fit_string = "Fit failure"
-        axis3.plot(fit_x, exponential(fit_x, a, b, c), linewidth=0.8, label=fit_string)
+        data = [go.Scatter(x=stage_positions_ps, y=rvalues, mode='markers', name="Experimental Data"),go.Scatter(x=fit_x, y=[exponential(fit_x, a, b, c)], mode='markers',name="Fit")]
+        layout = go.Layout(title=r'$\huge\textrm{Fitted Amplitude (single exponential)}$',
+                           xaxis={'title': r'$\Large\textrm{Stage Position (ps)}$', 'automargin': True},
+                           yaxis={'title': r'$\Large\textrm{Amplitude (V)}$', 'automargin': True}, height=750,
+                           width=1000,
+                           template="none")
+        figure = go.Figure(data=data, layout=layout)
+        figure.update_layout(
+            font=dict(
+                family="Arial",
+                size=22,  # Set the font size here
+                color="Black"
+            )
+        )
+        figure.add_annotation(x=np.argmax(rvalues), y=1.05*max(rvalues),
+                              text=fit_string, showarrow=False)
+        plot2_div = offline.plot(figure, auto_open=False, output_type='div')
     if num_terms == 2:
         a = popt[0]
         b = popt[1]
@@ -124,7 +103,23 @@ def create_figure():
         fit_string = str(round(a,2)) + "*exp(-t/" + str(round(b,2)) + ") + " + str(round(c,2)) + "*exp(-t/" + str(round(d,2)) + ") + " + str(round(e,2))
         if (a,b,c,d,e) == (0,1,0,1,0):
             fit_string = "Fit failure"
-        axis3.plot(fit_x, biexponential(fit_x,a,b,c,d,e), linewidth=0.8, label=fit_string)
+        data = [go.Scatter(x=stage_positions_ps, y=rvalues, mode='markers', name="Experimental Data"),go.Scatter(x=fit_x, y=[biexponential(fit_x,a,b,c,d,e)], mode='markers',name="Fit")]
+        layout = go.Layout(title=r'$\huge\textrm{Fitted Amplitude (biexponential)}$',
+                           xaxis={'title': r'$\Large\textrm{Stage Position (ps)}$', 'automargin': True},
+                           yaxis={'title': r'$\Large\textrm{Amplitude (V)}$', 'automargin': True}, height=750,
+                           width=1000,
+                           template="none")
+        figure = go.Figure(data=data, layout=layout)
+        figure.update_layout(
+            font=dict(
+                family="Arial",
+                size=22,  # Set the font size here
+                color="Black"
+            )
+        )
+        figure.add_annotation(x=np.argmax(rvalues), y=1.05*max(rvalues),
+                              text=fit_string, showarrow=False)
+        plot2_div = offline.plot(figure, auto_open=False, output_type='div')
     if num_terms == 3:
         a = popt[0]
         b = popt[1]
@@ -136,47 +131,39 @@ def create_figure():
         fit_string = str(round(a,2)) + "*exp(-t/" + str(round(b,2)) + ") + " + str(round(c,2)) + "*exp(-t/" + str(round(d,2)) + ") + " + str(round(e,2)) + "*exp(-t/" + str(round(f,2)) + ") + " + str(round(g,2))
         if (a,b,c,d,e,f,g) == (0,1,0,1,0,1,0):
             fit_string = "Fit failure"
-        axis3.plot(fit_x, triexponential(fit_x,a,b,c,d,e,f,g), linewidth=0.8, label=fit_string)
+        data = [go.Scatter(x=stage_positions_ps, y=rvalues, mode='markers', name="Experimental Data"),go.Scatter(x=fit_x, y=triexponential(fit_x,a,b,c,d,e,f,g), mode='markers', name="Fit")]
+        layout = go.Layout(title=r'$\huge\textrm{Fitted Amplitude (triexponential)}$',
+                           xaxis={'title': r'$\Large\textrm{Stage Position (ps)}$', 'automargin': True},
+                           yaxis={'title': r'$\Large\textrm{Amplitude (V)}$', 'automargin': True}, height=750,
+                           width=1000,
+                           template="none")
+        figure = go.Figure(data=data, layout=layout)
+        figure.add_annotation(x=np.argmax(rvalues), y=1.05*max(rvalues),
+                              text=fit_string, showarrow=False)
+        figure.update_layout(
+            font=dict(
+                family="Arial",
+                size=22,  # Set the font size here
+                color="Black"
+            )
+        )
+        plot2_div = offline.plot(figure, auto_open=False, output_type='div')
 
-    axis3.legend(loc='lower left')
-    fig.set_dpi(150)
-    fig.set_size_inches(7,20)
-    fig.tight_layout(pad=2.0)
-    return fig
+    # Plot the amplitude
+    data = [go.Scatter(x=stage_positions_ps, y=rvalues, mode='markers')]
+    layout = go.Layout(title=r'$\huge\textrm{Amplitude}$',
+                       xaxis={'title': r'$\Large\textrm{Stage Position (ps)}$', 'automargin': True},
+                       yaxis={'title': r'$\Large\textrm{Amplitude (V)}$', 'automargin': True}, height=750, width=1000,
+                       template="none")
+    figure = go.Figure(data=data, layout=layout)
+    figure.update_layout(
+        font=dict(
+            family="Arial",
+            size=22,  # Set the font size here
+            color="Black"
+        )
+    )
+    plot1_div = offline.plot(figure, auto_open=False, output_type='div')
 
-@pumpprobe_blueprint.route('/',methods=['GET', 'POST'])
-def pumpprobe():  # put application's code here
-    global x_file
-    global y_file
-    global remove_from_front
-    global remove_from_end
-    global num_terms
-    global max_cut
 
-    remove_from_front = 0
-    remove_from_end = 0
-    num_terms = 2
-
-    try:
-        session["front"]
-        session["back"]
-        session["numterms"]
-    except:
-        session["front"] = remove_from_front
-        session["back"] = remove_from_end
-        session["num_terms"] = num_terms
-
-    if request.method == 'POST':
-        remove_from_front = int(request.form.get("removefront"))
-        remove_from_end = int(request.form.get("removeend"))
-        num_terms = int(request.form.get("fitnum"))
-        files = request.files.getlist("file")
-        x_file = files[0].stream.read()
-        y_file = files[1].stream.read()
-        session["front"] = remove_from_front
-        session["back"] = remove_from_end
-        session["num_terms"] = num_terms
-
-        return render_template("pumpprobe.html", img_src=True, title="Pump-Probe", numterms=session["num_terms"], front=session["front"], back=session["back"])
-
-    return render_template("pumpprobe.html", img_src=False, title="Pump-Probe",numterms=session["num_terms"], front=session["front"], back=session["back"])
+    return render_template("pumpprobe.html", img_src=False, title="Pump-Probe", plot1_div = plot1_div,plot2_div = plot2_div,figures=True)
