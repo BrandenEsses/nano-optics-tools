@@ -29,7 +29,7 @@ def plot():
 
     # First plot just the interferogram
     data = [go.Scatter(x=df['stage_pos_mm'], y=df['amplitude'], mode='markers')]
-    layout = go.Layout(title='Interferogram', xaxis={'title': 'Stage Position (mm)'}, yaxis={'title': 'Amplitude (V)'},height=750,width=1000)
+    layout = go.Layout(title=r'$\huge\textrm{Interferogram}$', xaxis={'title': r'$\Large\textrm{Stage Position (mm)}$'}, yaxis={'title': r'$\Large\textrm{Amplitude (V)}$'},height=750,width=1000)
     figure = go.Figure(data=data, layout=layout)
     plot1_div = offline.plot(figure, auto_open=False, output_type='div')
 
@@ -66,11 +66,18 @@ def plot():
     x_min_index = np.argmin(np.abs(xf - 500)) # Find index where 500 wavenumbers occurs
     max_index = np.argmax(yf)
     data = [go.Scatter(x=xf[x_min_index:], y=yf[x_min_index:], mode='markers')]
-    layout = go.Layout(title='Spectrum', xaxis={'title': 'Wavenumber (cm-1)', 'tickformat':"digits"}, yaxis={'title': 'Intensity'},height=750,width=1000)
+    layout = go.Layout(title=r'$\huge\textrm{Spectrum}$', xaxis={'title': r'$\Large\textrm{Wavenumbers }(\textrm{cm}^{-1})$', 'tickformat':"digits"}, yaxis={'title': r'$\Large\textrm{Intensity (AU)}$'},height=750,width=1000)
     figure = go.Figure(data=data, layout=layout)
-    figure.add_annotation(x=xf[max_index], y=yf[max_index], text=str(round(xf[max_index])) + " cm-1")
+    figure.update_layout(
+        font=dict(
+            family="Arial",
+            size=22,  # Set the font size here
+            color="Black"
+        )
+    )
+    figure.add_annotation(x=xf[max_index], y=yf[max_index], text=r"$\textrm{" + str(round(xf[max_index])) + " cm}^{-1}$")
     plot2_div = offline.plot(figure, auto_open=False, output_type='div')
-    return render_template('nanoftir.html', plot1_div=plot1_div, plot2_div=plot2_div,figures=True)
+    return render_template('nanoftir.html', plot1_div=plot1_div, plot2_div=plot2_div,figures=True, title="NanoFTIR")
 
 @nanoftir_blueprint.route('/',methods=['GET', 'POST'])
 def nanoftir():
