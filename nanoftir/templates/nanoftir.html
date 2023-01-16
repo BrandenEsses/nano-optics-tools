@@ -5,16 +5,26 @@
         hr {
             margin: 2px;
         }
+        plot {
+            height: 100%;
+        }
     </style>
     <h1>NanoFTIR</h1>
     <h3>Upload an interferogram for analysis</h3>
-    <form method=post enctype=multipart/form-data>
+    <form method=post enctype=multipart/form-data action="/nanoftir/plot">
       <p>
           <input type=file name=file>
           <input type=submit value=Upload>
       </p>
     </form>
-    {% if img_src %}
-        <img src="/nanoftir/intfg.png">
+    <br>
+    <br>
+    {% if figures %}
+    <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+        <div id="plot">{{ plot1_div|safe }}</div>
+    </div>
+    <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+        <div id="plot">{{ plot2_div|safe }}</div>
+    </div>
     {% endif %}
 {% endblock %}

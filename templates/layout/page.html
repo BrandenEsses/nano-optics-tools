@@ -3,6 +3,7 @@
         <meta name="viewport" content="width=device-width initial-scale=1, maximum-scale=1, user-scalable=no">
         <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <style>
             @media only screen and (min-device-width: 650px)
@@ -63,7 +64,7 @@
         <title>{{ title }}</title>
     </head>
     <body>
-            <div class="container-fluid" align="center">
+            <div class="container-fluid bg-white" align="center">
                     {% block content %}
                     {% endblock %}
             </div>
