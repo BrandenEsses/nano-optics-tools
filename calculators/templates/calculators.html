@@ -7,6 +7,21 @@
         }
     </style>
     <h1>Calculators</h1>
+    <h3>Wavenumbers/Wavelength Converter</h3>
+
+<form method=post enctype=multipart/form-data>
+      <p>
+        <p>
+          <label for="wavelength">Wavelength</label><br>
+          <input type=number id="wavelength" onchange="convert(this)">nm
+        </p>
+        <p>
+          <label for="wavenumbers">Wavenumbers</label><br>
+          <input type=number id="wavenumbers" onchange="convert(this)">cm-1
+        </p>
+      </p>
+    </form>
+
     <h3>&Chi;1 - Orpheus TWINS Calculator</h3>
     <form method=post enctype=multipart/form-data>
       <p>
@@ -92,6 +107,22 @@
                 }
             }
 
+    }
+
+    function convert(element) {
+        var calling_element_id = element.id;
+        var wavelength = document.getElementById ("wavelength").value;
+        const wavelength_element = document.getElementById("wavelength");
+        var wavenumbers = document.getElementById("wavenumbers").value;
+        const wavenumbers_element = document.getElementById("wavenumbers");
+        if(calling_element_id == "wavenumbers"){
+            var wavelength_calc = 10000000/wavenumbers;
+            wavelength_element.value = wavelength_calc.toFixed(2);
+        }
+        if(calling_element_id == "wavelength"){
+            var wavenumbers_calc = 10000000/wavelength;
+            wavenumbers_element.value = wavenumbers_calc.toFixed(2);
+        }
     }
     </script>
 {% endblock %}
