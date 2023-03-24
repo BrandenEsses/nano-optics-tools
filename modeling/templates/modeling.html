@@ -1,0 +1,60 @@
+{% extends "layout/page.html" %}
+{% set role = role %}
+{% block content %}
+    <style type='text/css'>
+        hr {
+            margin: 2px;
+        }
+        plot {
+            height: 100%;
+        }
+    </style>
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+    <h1>Modeling</h1>
+    <h3>SiO2 - Phonon Resonance Peak Redshifting</h3>
+        <div class="col-6">
+        <form method=post enctype=multipart/form-data action="/modeling/plot">
+            <div class="form-group row">
+              <label for="minT" class="form-label">Minimum temperature (K)</label>
+              <input type=number name=minT class="form-control" id = "minT" required>
+            </div>
+            <div class="form-group row">
+              <label for="maxT" class="form-label">Maximum temperature (K)</label>
+              <input type=number name=maxT class="form-control" id = "maxT" required>
+            </div>
+            <div class="form-group row">
+              <label for="stepsT" class="form-label">How many points?</label>
+              <input type=number name=stepsT class="form-control" id = "stepsT" required>
+            </div>
+            <div class="form-group row">
+              <label for="minwn" class="form-label">Minimum wavenumbers (cm-1)</label>
+              <input type=number name=minwn class="form-control" id = "minT" required>
+            </div>
+            <div class="form-group row">
+              <label for="maxwn" class="form-label">Maximum wavenumbers (cm-1)</label>
+              <input type=number name=maxwn class="form-control" id = "maxT" required>
+            </div>
+            <div class="form-group row">
+              <label for="stepswn" class="form-label">How many points?</label>
+              <input type=number name=stepswn class="form-control" id = "stepsT" required>
+            </div>
+            <div class="form-group row">
+              <label for="demod" class="form-label">What demodulation order (1,2,...?)</label>
+              <input type=number name=demod class="form-control" id = "demod" required>
+            </div>
+            <div class="form-group row">
+                <input type=submit value=Simulate class="form-control" id="rangeT" required>
+            </div>
+        </form>
+        </div>
+
+    </div>
+    {% if figures %}
+    <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+        <div id="plot">{{ plot1_div|safe }}</div>
+    </div>
+    <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+        <div id="plot">{{ plot2_div|safe }}</div>
+    </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,67 @@
+from flask import Flask, render_template, request, redirect, session, Blueprint
+import os
+import matlab.engine
+import numpy as np
+import plotly.graph_objs as go
+import plotly.offline as offline
+
+modeling_blueprint = Blueprint('modeling', __name__, url_prefix='/modeling', template_folder="templates")
+MODELING_MATLAB_FILES_PATH = ""
+
+@modeling_blueprint.route('/')
+def modeling():
+    return render_template("modeling.html", figures=False, title="Modeling")
+
+
+@modeling_blueprint.route('/plot', methods=['GET','POST'])
+def plot():
+    eng = matlab.engine.start_matlab()
+    eng.cd(MODELING_MATLAB_FILES_PATH)
+    minT = int(request.form.get("minT"))
+    maxT = int(request.form.get("maxT"))
+    stepsT = int(request.form.get("stepsT"))
+    minwn = int(request.form.get("minwn"))
+    maxwn = int(request.form.get("maxwn"))
+    stepswn = int(request.form.get("stepswn"))
+    demod = int(request.form.get("demod"))
+    T = np.linspace(minT, maxT, stepsT)
+    nu =np.linspace(minwn, maxwn, stepswn)
+    matlab_T = matlab.double(T)
+    matlab_nu = matlab.double(nu)
+    matlab_demod = matlab.double(demod)
+    [snbar, amplitude, phase] = eng.Spheroid4Raschke(matlab_nu, matlab_T, matlab_demod, nargout=3)
+    phase = np.array(phase)
+    snbar = np.array(snbar)
+
+    #Plot snbar at each T
+    snbar_amp_data = []
+    for i in range(len(matlab_T)):
+        snbar_amp_data.append(go.Scatter(x=nu, y=np.abs(snbar[:, i]), mode='markers', name=str(T[i]) + "K"))
+    layout = go.Layout(title=r'$\huge\textrm{Simualted s-SNOM Signal Amplitude}$',
+                       xaxis={'title': r'$\Large\textrm{Wavenumber (cm-1)}$', 'automargin': True},
+                       yaxis={'title': r'$\Large\textrm{Intensity (AU)}$', 'automargin': True}, height=750, width=1000,
+                       template="none")
+    figure = go.Figure(data=snbar_amp_data, layout=layout)
+    figure.update_layout(
+        font=dict(
+            family="Arial",
+            size=22,  # Set the font size here
+            color="Black"
+        )
+    )
+    plot1_div = offline.plot(figure, auto_open=False, output_type='div')
+    # Plot the phase at each T
+    phase_data = []
+    for i in range(len(T)):
+        phase_data.append(go.Scatter(x=nu, y=phase[:,i], mode='markers', name=str(T[i])+"K"))
+    layout = go.Layout(title=r'$\huge\textrm{Simualted s-SNOM Signal Phase}$', xaxis={'title': r'$\Large\textrm{Wavenumber (cm-1)}$', 'automargin':True}, yaxis={'title': r'$\Large\textrm{Angle (Rad)}$', 'automargin':True},height=750,width=1000,template="none")
+    figure = go.Figure(data=phase_data, layout=layout)
+    figure.update_layout(
+        font=dict(
+            family="Arial",
+            size=22,  # Set the font size here
+            color="Black"
+        )
+    )
+    plot2_div = offline.plot(figure, auto_open=False, output_type='div')
+    return render_template('modeling.html', plot1_div=plot1_div,plot2_div=plot2_div,figures=True, title="NanoFTIR")
