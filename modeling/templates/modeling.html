@@ -51,10 +51,13 @@
     </div>
     {% if figures %}
     <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
-        <div id="plot">{{ plot1_div|safe }}</div>
+        <div id="plot1">{{ plot1_div|safe }}</div>
     </div>
     <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
-        <div id="plot">{{ plot2_div|safe }}</div>
+        <div id="plot2">{{ plot2_div|safe }}</div>
     </div>
     {% endif %}
+    <script>
+        document.getElementById('plot1').scrollIntoView();
+    </script>
 {% endblock %}
