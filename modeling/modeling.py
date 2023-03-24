@@ -59,7 +59,7 @@ def plot():
     #Plot snbar at each T
     snbar_amp_data = []
     for i in range(len(matlab_T)):
-        snbar_amp_data.append(go.Scatter(x=nu, y=np.abs(snbar[:, i]), mode='markers', name=str(round(T[i],2)) + "K"))
+        snbar_amp_data.append(go.Scatter(x=nu, y=np.abs(snbar[:, i]), mode='lines', name=str(round(T[i],2)) + "K"))
     layout = go.Layout(title=r'$\huge\textrm{Simualted s-SNOM Signal Amplitude}$',
                        xaxis={'title': r'$\Large\textrm{Wavenumber (cm-1)}$', 'automargin': True},
                        yaxis={'title': r'$\Large\textrm{Intensity (AU)}$', 'automargin': True},height=750, width=1000,
@@ -78,8 +78,8 @@ def plot():
     phase_data = []
     for i in range(len(T)):
         f = 1 - (T[i] - 300) * 3e-5;
-        phase_data.append(go.Scatter(x=nu, y=phase[:,i], mode='markers', name=str(round(T[i],2))+"K; f=" + str(round(f,4))))
-    phase_data.append(go.Scatter(x=nu, y=phase[:, 0]-phase[:, -1], mode='markers', name=str(round(T[0],2)) + "K" + " - " +str(round(T[-1],2)) + "K"))
+        phase_data.append(go.Scatter(x=nu, y=phase[:,i], mode='lines', name=str(round(T[i],2))+"K; f=" + str(round(f,4))))
+    phase_data.append(go.Scatter(x=nu, y=phase[:, 0]-phase[:, -1], mode='lines', name=str(round(T[0],2)) + "K" + " - " +str(round(T[-1],2)) + "K"))
     layout = go.Layout(title=r'$\huge\textrm{Simualted s-SNOM Signal Phase}$', xaxis={'title': r'$\Large\textrm{Wavenumber (cm-1)}$', 'automargin':True}, yaxis={'title': r'$\Large\textrm{Angle (Rad)}$', 'automargin':True},template="none",height=750,width=1000)
     figure = go.Figure(data=phase_data, layout=layout)
     figure.update_layout(
