@@ -1,128 +1,126 @@
-{% extends "layout/page.html" %}
-{% set role = role %}
-{% block content %}
-    <style type='text/css'>
-        hr {
-            margin: 2px;
-        }
-    </style>
-    <h1>Calculators</h1>
-    <h3>Wavenumbers/Wavelength Converter</h3>
+{% extends "layout/page.html" %} {% set role = role %} {% block content %}
+<style type='text/css'>
+   hr {
+   margin: 2px;
+   }
+</style>
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+   <h1>Calculators</h1>
+</div>
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+   <h3>Wavenumbers/Wavelength Converter</h3>
+   <div class="col-6">
+      <form method=post enctype=multipart/form-data>
+         <div class="form-group row">
+            <label for="wavelength" class="form-label">Wavelength (nm)</label>
+            <input type=number id="wavelength" class="form-control" onchange="convert(this)">
+         </div>
+         <div class="form-group row">
+            <label for="wavenumbers" class="form-label">Wavenumbers (cm-1)</label>
+            <input type=number id="wavenumbers" class="form-control" onchange="convert(this)">
+         </div>
+      </form>
+   </div>
+</div>
 
-<form method=post enctype=multipart/form-data>
-      <p>
-        <p>
-          <label for="wavelength">Wavelength</label><br>
-          <input type=number id="wavelength" onchange="convert(this)">nm
-        </p>
-        <p>
-          <label for="wavenumbers">Wavenumbers</label><br>
-          <input type=number id="wavenumbers" onchange="convert(this)">cm-1
-        </p>
-      </p>
-    </form>
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+   <h3>&Chi;1 - Orpheus TWINS Calculator</h3>
+    <div class="col-6">
+      <form method=post enctype=multipart/form-data>
+          <div class="form-group row">
+            <label for="twin1_signal" class="form-label">Twin 1 Signal (nm)</label>
+            <input type=number id="twin1_signal" class="form-control" onchange="twins_calc()">
+          </div>
+          <div class="form-group row">
+            <label for="twin1_idler" class="form-label">Twin 1 Idler (nm)</label>
+            <input type=number id="twin1_idler" class="form-control" onchange="twins_calc()">
+          </div>
+          <div class="form-group row">
+            <label for="twin2_signal" class="form-label">Twin 2 Signal (nm)</label>
+            <input type=number id="twin2_signal" class="form-control" onchange="twins_calc()">
+          </div>
+          <div class="form-group row">
+            <label for="twin2_idler" class="form-label">Twin 2 Idler (nm)</label>
+            <input type=number id="twin2_idler" class="form-control" onchange="twins_calc()">
+          </div>
+          <div class="form-group row">
+            <label for="dfg_out" class="form-label">DFG Output (nm)</label>
+            <input type=number id="dfg_out" class="form-control" onchange="twins_calc()">
+          </div>
+      </form>
+    </div>
+</div>
+<script>
+   function twins_calc() {
+     var empty_fields = 0;
+     var empty_field_name = "";
+     var twin1_signal = document.getElementById("twin1_signal").value;
+     const twin1_signal_element = document.getElementById("twin1_signal");
+     if (!twin1_signal) {
+       empty_fields++;
+       empty_field_name = "twin1_signal";
+     }
+     var twin1_idler = document.getElementById("twin1_idler").value;
+     const twin1_idler_element = document.getElementById("twin1_idler");
+     if (!twin1_idler) {
+       empty_fields++;
+       empty_field_name = "twin1_idler";
+     }
+     var twin2_signal = document.getElementById("twin2_signal").value;
+     const twin2_signal_element = document.getElementById("twin2_signal");
+     if (!twin2_signal) {
+       empty_fields++;
+       empty_field_name = "twin2_signal";
+     }
+     var twin2_idler = document.getElementById("twin2_idler").value;
+     const twin2_idler_element = document.getElementById("twin2_idler");
+     if (!twin2_idler) {
+       empty_fields++;
+       empty_field_name = "twin2_idler";
+     }
+     var dfg_out = document.getElementById("dfg_out").value;
+     const dfg_out_element = document.getElementById("dfg_out");
+     if (!dfg_out) {
+       empty_fields++;
+       empty_field_name = "dfg_out";
+     }
+     if (empty_fields == 1) {
+       if (empty_field_name == "twin1_signal") {
+         var twin1_signal_calc = 1 / (1 / 515 - 1 / twin1_idler);
+         twin1_signal_element.value = twin1_signal_calc;
+       }
+       if (empty_field_name == "twin1_idler") {
+         var twin1_idler_calc = 1 / (1 / 515 - 1 / twin1_signal);
+         twin1_idler_element.value = twin1_idler_calc;
+       }
+       if (empty_field_name == "twin2_signal") {
+         var twin2_signal_calc = 1 / (1 / 1030 - 1 / twin2_idler);
+         twin2_signal_element.value = twin2_signal_calc;
+       }
+       if (empty_field_name == "twin2_idler") {
+         var twin2_idler_calc = 1 / (1 / 1030 - 1 / twin2_signal);
+         twin2_idler_element.value = twin2_idler_calc;
+       }
+       if (empty_field_name == "dfg_out") {
+         var dfg_out_calc = 1 / (1 / twin2_signal - 1 / twin1_idler);
+         dfg_out_element.value = dfg_out_calc;
+       }
+     }
+   }
 
-    <h3>&Chi;1 - Orpheus TWINS Calculator</h3>
-    <form method=post enctype=multipart/form-data>
-      <p>
-        <p>
-          <label for="twin1_signal">Twin 1 Signal:</label><br>
-          <input type=number id="twin1_signal" onchange="twins_calc()">nm
-        </p>
-        <p>
-          <label for="twin1_idler">Twin 1 Idler:</label><br>
-          <input type=number id="twin1_idler" onchange="twins_calc()">nm
-        </p>
-        <p>
-          <label for="twin2_signal">Twin 2 Signal:</label><br>
-          <input type=number id="twin2_signal" onchange="twins_calc()">nm
-        </p>
-        <p>
-          <label for="twin2_idler">Twin 2 Idler:</label><br>
-          <input type=number id="twin2_idler" onchange="twins_calc()">nm
-        </p>
-        <p>
-          <label for="dfg_out">DFG Output:</label><br>
-          <input type=number id="dfg_out" onchange="twins_calc()">nm
-        </p>
-      </p>
-    </form>
-    {% if img_src %}
-        <img src="/intfg.png">
-    {% endif %}
-    <script>
-        function twins_calc() {
-            var empty_fields = 0;
-            var empty_field_name = "";
-            var twin1_signal = document.getElementById("twin1_signal").value;
-            const twin1_signal_element = document.getElementById("twin1_signal");
-            if(!twin1_signal){
-                empty_fields++;
-                empty_field_name = "twin1_signal";
-            }
-            var twin1_idler = document.getElementById("twin1_idler").value;
-            const twin1_idler_element = document.getElementById("twin1_idler");
-            if(!twin1_idler){
-                empty_fields++;
-                empty_field_name = "twin1_idler";
-            }
-            var twin2_signal = document.getElementById("twin2_signal").value;
-            const twin2_signal_element = document.getElementById("twin2_signal");
-            if(!twin2_signal){
-                empty_fields++;
-                empty_field_name = "twin2_signal";
-            }
-            var twin2_idler = document.getElementById("twin2_idler").value;
-            const twin2_idler_element = document.getElementById("twin2_idler");
-            if(!twin2_idler){
-                empty_fields++;
-                empty_field_name = "twin2_idler";
-            }
-            var dfg_out = document.getElementById("dfg_out").value;
-            const dfg_out_element = document.getElementById("dfg_out");
-            if(!dfg_out){
-                empty_fields++;
-                empty_field_name = "dfg_out";
-            }
-            if(empty_fields == 1){
-                if(empty_field_name == "twin1_signal"){
-                    var twin1_signal_calc = 1/(1/515 - 1/twin1_idler);
-                    twin1_signal_element.value = twin1_signal_calc;
-                }
-                if(empty_field_name == "twin1_idler"){
-                    var twin1_idler_calc = 1/(1/515 - 1/twin1_signal);
-                    twin1_idler_element.value = twin1_idler_calc;
-                }
-                if(empty_field_name == "twin2_signal"){
-                    var twin2_signal_calc = 1/(1/1030 - 1/twin2_idler);
-                    twin2_signal_element.value = twin2_signal_calc;
-                }
-                if(empty_field_name == "twin2_idler"){
-                    var twin2_idler_calc = 1/(1/1030 - 1/twin2_signal);
-                    twin2_idler_element.value = twin2_idler_calc;
-                }
-                if(empty_field_name == "dfg_out"){
-                    var dfg_out_calc = 1/(1/twin2_signal - 1/twin1_idler);
-                    dfg_out_element.value = dfg_out_calc;
-                }
-            }
-
-    }
-
-    function convert(element) {
-        var calling_element_id = element.id;
-        var wavelength = document.getElementById ("wavelength").value;
-        const wavelength_element = document.getElementById("wavelength");
-        var wavenumbers = document.getElementById("wavenumbers").value;
-        const wavenumbers_element = document.getElementById("wavenumbers");
-        if(calling_element_id == "wavenumbers"){
-            var wavelength_calc = 10000000/wavenumbers;
-            wavelength_element.value = wavelength_calc.toFixed(2);
-        }
-        if(calling_element_id == "wavelength"){
-            var wavenumbers_calc = 10000000/wavelength;
-            wavenumbers_element.value = wavenumbers_calc.toFixed(2);
-        }
-    }
-    </script>
-{% endblock %}
+   function convert(element) {
+     var calling_element_id = element.id;
+     var wavelength = document.getElementById("wavelength").value;
+     const wavelength_element = document.getElementById("wavelength");
+     var wavenumbers = document.getElementById("wavenumbers").value;
+     const wavenumbers_element = document.getElementById("wavenumbers");
+     if (calling_element_id == "wavenumbers") {
+       var wavelength_calc = 10000000 / wavenumbers;
+       wavelength_element.value = wavelength_calc.toFixed(2);
+     }
+     if (calling_element_id == "wavelength") {
+       var wavenumbers_calc = 10000000 / wavelength;
+       wavenumbers_element.value = wavenumbers_calc.toFixed(2);
+     }
+   }
+</script> {% endblock %}

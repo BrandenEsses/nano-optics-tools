@@ -8,28 +8,9 @@
     </style>
     <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
     <h1>Pump Probe</h1>
+    </div>
+    <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
     <h3>Upload X and Y data from a pump probe scan</h3>
-{#    <form method=post enctype=multipart/form-data action="/pumpprobe/plot">#}
-{#      <p>#}
-{#          X#}
-{#          <input type=file name=file required>#}
-{#      </p>#}
-{#      <p>#}
-{#          Y#}
-{#          <input type=file name=file required>#}
-{#      </p>#}
-{#    <p>#}
-{#        Use <input type=number name=fitnum min="1" max="3"  value="{{ numterms }}" required> exponential term(s) when fitting#}
-{#        <br>#}
-{#        Remove <input type=number name=removefront min="0" max="500" value="{{ front }}" required> picoseconds from the start#}
-{#        <br>#}
-{#        Remove <input type=number name=removeend min="0" max="500" value = "{{ back }}" required> picoseconds from the end#}
-{#    </p>#}
-{#        <p>#}
-{#        <input type=submit value=Upload>#}
-{#    </p>#}
-{#    </form>#}
-
         <div class="col-6">
         <form method=post enctype=multipart/form-data action="/pumpprobe/plot">
             <div class="form-group row">

@@ -19,13 +19,13 @@ def modeling():
         stepswn = session["stepswn"]
         demod = session["demod"]
     except:
-        minT = None
-        maxT = None
-        stepsT = None
-        minwn = None
-        maxwn = None
-        stepswn = None
-        demod = None
+        minT = 300
+        maxT = 1000
+        stepsT = 7
+        minwn = 800
+        maxwn = 1600
+        stepswn = 400
+        demod = 2
     return render_template("modeling.html", figures=False, title="Modeling",
                            minT=minT, maxT=maxT, stepsT=stepsT,minwn=minwn,maxwn=maxwn,stepswn=stepswn, demod=demod)
 
@@ -77,7 +77,9 @@ def plot():
     # Plot the phase at each T
     phase_data = []
     for i in range(len(T)):
-        phase_data.append(go.Scatter(x=nu, y=phase[:,i], mode='markers', name=str(T[i])+"K"))
+        f = 1 - (T[i] - 300) * 3e-5;
+        phase_data.append(go.Scatter(x=nu, y=phase[:,i], mode='markers', name=str(T[i])+"K; f=" + str(f)))
+    phase_data.append(go.Scatter(x=nu, y=phase[:, 0]-phase[:, -1], mode='markers', name=str(T[0]) + "K" + " - " +str(T[-1]) + "K"))
     layout = go.Layout(title=r'$\huge\textrm{Simualted s-SNOM Signal Phase}$', xaxis={'title': r'$\Large\textrm{Wavenumber (cm-1)}$', 'automargin':True}, yaxis={'title': r'$\Large\textrm{Angle (Rad)}$', 'automargin':True},height=750,width=1000,template="none")
     figure = go.Figure(data=phase_data, layout=layout)
     figure.update_layout(
