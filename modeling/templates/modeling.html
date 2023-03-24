@@ -16,31 +16,31 @@
         <form method=post enctype=multipart/form-data action="/modeling/plot">
             <div class="form-group row">
               <label for="minT" class="form-label">Minimum temperature (K)</label>
-              <input type=number name=minT class="form-control" id = "minT" required>
+              <input type=number name=minT class="form-control" id = "minT" value={{ minT }} required>
             </div>
             <div class="form-group row">
               <label for="maxT" class="form-label">Maximum temperature (K)</label>
-              <input type=number name=maxT class="form-control" id = "maxT" required>
+              <input type=number name=maxT class="form-control" id = "maxT" value={{ maxT }} required>
             </div>
             <div class="form-group row">
               <label for="stepsT" class="form-label">How many points?</label>
-              <input type=number name=stepsT class="form-control" id = "stepsT" required>
+              <input type=number name=stepsT class="form-control" id = "stepsT" value={{ stepsT }} required>
             </div>
             <div class="form-group row">
               <label for="minwn" class="form-label">Minimum wavenumbers (cm-1)</label>
-              <input type=number name=minwn class="form-control" id = "minT" required>
+              <input type=number name=minwn class="form-control" id = "minT" value={{ minwn }} required>
             </div>
             <div class="form-group row">
               <label for="maxwn" class="form-label">Maximum wavenumbers (cm-1)</label>
-              <input type=number name=maxwn class="form-control" id = "maxT" required>
+              <input type=number name=maxwn class="form-control" id = "maxT" value={{ maxwn }} required>
             </div>
             <div class="form-group row">
               <label for="stepswn" class="form-label">How many points?</label>
-              <input type=number name=stepswn class="form-control" id = "stepsT" required>
+              <input type=number name=stepswn class="form-control" id = "stepsT" value={{ stepswn }} required>
             </div>
             <div class="form-group row">
               <label for="demod" class="form-label">What demodulation order (1,2,...?)</label>
-              <input type=number name=demod class="form-control" id = "demod" required>
+              <input type=number name=demod class="form-control" id = "demod" value={{ demod }} required>
             </div>
             <div class="form-group row">
                 <input type=submit value=Simulate class="form-control" id="rangeT" required>

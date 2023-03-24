@@ -10,10 +10,27 @@ MODELING_MATLAB_FILES_PATH = ""
 
 @modeling_blueprint.route('/')
 def modeling():
-    return render_template("modeling.html", figures=False, title="Modeling")
+    try:
+        minT = session["minT"]
+        maxT = session["maxT"]
+        stepsT = session["stepsT"]
+        minwn = session["minwn"]
+        maxwn = session["maxwn"]
+        stepswn = session["stepswn"]
+        demod = session["demod"]
+    except:
+        minT = None
+        maxT = None
+        stepsT = None
+        minwn = None
+        maxwn = None
+        stepswn = None
+        demod = None
+    return render_template("modeling.html", figures=False, title="Modeling",
+                           minT=minT, maxT=maxT, stepsT=stepsT,minwn=minwn,maxwn=maxwn,stepswn=stepswn, demod=demod)
 
 
-@modeling_blueprint.route('/plot', methods=['GET','POST'])
+@modeling_blueprint.route('/plot', methods=['POST'])
 def plot():
     eng = matlab.engine.start_matlab()
     eng.cd(MODELING_MATLAB_FILES_PATH)
@@ -24,6 +41,13 @@ def plot():
     maxwn = int(request.form.get("maxwn"))
     stepswn = int(request.form.get("stepswn"))
     demod = int(request.form.get("demod"))
+    session["minT"] = minT
+    session["maxT"] = maxT
+    session["stepsT"] = stepsT
+    session["minwn"] = minwn
+    session["maxwn"] = maxwn
+    session["stepswn"] = stepswn
+    session["demod"] = demod
     T = np.linspace(minT, maxT, stepsT)
     nu =np.linspace(minwn, maxwn, stepswn)
     matlab_T = matlab.double(T)
@@ -64,4 +88,5 @@ def plot():
         )
     )
     plot2_div = offline.plot(figure, auto_open=False, output_type='div')
-    return render_template('modeling.html', plot1_div=plot1_div,plot2_div=plot2_div,figures=True, title="NanoFTIR")
+    return render_template('modeling.html', plot1_div=plot1_div,plot2_div=plot2_div,figures=True, title="Modeling",
+                           minT=minT, maxT=maxT, stepsT=stepsT,minwn=minwn,maxwn=maxwn,stepswn=stepswn, demod=demod)
