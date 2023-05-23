@@ -1,0 +1,50 @@
+{% extends "layout/page.html" %}
+{% set role = role %}
+{% block content %}
+    <style type='text/css'>
+        hr {
+            margin: 2px;
+        }
+        plot {
+            height: 100%;
+        }
+    </style>
+
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+    <h1>File Conversions</h1>
+</div>
+
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+    <h3>Anasys .axz</h3>
+        <div class="col-6">
+        <form method=post enctype=multipart/form-data action="/conversions/axz">
+            <div class="form-group row">
+              <label for="xfile" class="form-label">Upload an Anasys .axz file</label>
+              <input type=file name=axz_file class="form-control" id = "axz_file" required>
+            </div>
+            <div class="form-group row">
+                <input type=submit value=Convert class="form-control" id="formFile" required>
+            </div>
+        </form>
+            <br>
+            Note: This will return a .txt file containing two lists of python dictionaries (first are the spectra, second are the heightmaps). Dictionary keys are as follows.
+<br>
+            <br>
+    <ul class="list-group">
+    <li class="list-group-item"><b>Spectra Dictionary Keys</b></li>
+    <li class="list-group-item"><b>label:</b> string</li>
+    <li class="list-group-item"><b>data_channel:</b> string; the data channel recorded (e.g. demod 2 from a Zurich LI)</li>
+    <li class="list-group-item"><b>state_pos_mm:</b> list of floats; the stage positions in mm of the interferogram</li>
+    <li class="list-group-item"><b>data:</b> list of floats; containing the interferogram value at each stage_pos_mm value</li>
+</ul>
+<br>
+<ul class="list-group">
+    <li class="list-group-item"><b>Heightmaps Dictionary Keys</b></li>
+    <li class="list-group-item"><b>label:</b> string</li>
+    <li class="list-group-item"><b>data_channel:</b> string; the data channel recorded (e.g. demod 2 from a Zurich LI)</li>
+    <li class="list-group-item"><b>dimensions:</b> tuple of integers (x,y); the dimensions of the scan</li>
+    <li class="list-group-item"><b>data:</b> x by y list of floats; the scan data</li>
+</ul>
+</div>
+</div>
+{% endblock %}

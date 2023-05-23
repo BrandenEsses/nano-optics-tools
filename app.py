@@ -16,6 +16,8 @@ from pumpprobe.pumpprobe import pumpprobe_blueprint
 app.register_blueprint(pumpprobe_blueprint)
 from modeling.modeling import modeling_blueprint
 app.register_blueprint(modeling_blueprint)
+from conversions.conversions import conversions_blueprint
+app.register_blueprint(conversions_blueprint)
 
 if __name__ == '__main__':
     app.run()
