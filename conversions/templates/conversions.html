@@ -19,9 +19,21 @@
         <div class="col-6">
         <form method=post enctype=multipart/form-data action="/conversions/axz">
             <div class="form-group row">
-              <label for="xfile" class="form-label">Upload an Anasys .axz file</label>
+              <label for="axz_file" class="form-label">Upload an Anasys .axz file</label>
               <input type=file name=axz_file class="form-control" id = "axz_file" required>
             </div>
+            <div class="form-group row">
+              <label for="axz_ref" class="form-label">Upload reference interferogram(s)</label>
+              <input type=file name=axz_ref class="form-control" id = "axz_ref" required>
+            </div>
+            <div class="form-group row">
+              <label for="channel" class="form-label">Name of data channel, leave to process all channels (e.g. "//ZI/DEV533/DEMODS/0/X")</label>
+              <input type=text name=data_channel class="form-control" id = "data_channel" required>
+            </div>
+{#            <div class="form-group row">#}
+{#              <label for="plot_spectra" class="form-label">Plot the spectra</label>#}
+{#              <input type=form-check-input name=plot_spectra class="form-control" id = "plot_spectra">#}
+{#            </div>#}
             <div class="form-group row">
                 <input type=submit value=Convert class="form-control" id="formFile" required>
             </div>
@@ -47,4 +59,17 @@
 </ul>
 </div>
 </div>
+{% if figures %}
+    <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+        <h3>Spectra Plots</h3>
+    </div>
+    {% for plot in plots %}
+        <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+            <div id="plot{{ loop.index }}">{{ plot|safe }}</div>
+        </div>
+    {% endfor %}
+{% endif %}
+    <script>
+        document.getElementById('plot0').scrollIntoView();
+    </script>
 {% endblock %}
