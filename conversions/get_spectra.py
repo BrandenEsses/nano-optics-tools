@@ -162,7 +162,24 @@ def get_spectrum_from_interferogram(samp_data, ref_data, params):
         #            sampArray,X_samp,xcm_samp = fc.LengthCheck(sampArray,X_samp,xcm_samp) #Sometimes the number of indices between minWN and maxWN varies by 1. This fixes that
 
         # Phase correction
-        X_samp = X_samp / refAvg[:len(X_samp), 1]  # Referencing sample data to reference data
+        if len(X_samp) > len(refAvg[:len(X_samp), 1]):
+            # Separate the real and imaginary parts of the reference spectrum
+            reference_spectrum = refAvg[:len(X_samp), 1]
+            reference_spectrum_x = xcm
+            reference_spectrum_real = np.real(reference_spectrum)
+            reference_spectrum_imag = np.imag(reference_spectrum)
+
+            # Create a new x-axis for the reference spectrum that matches the x-coordinates of the spectrum
+            new_x = xcm_samp
+
+            # Interpolate the real and imaginary parts of the reference spectrum to match the x-coordinates of the spectrum
+            interpolated_reference_spectrum_real = np.interp(new_x, reference_spectrum_x, reference_spectrum_real)
+            interpolated_reference_spectrum_imag = np.interp(new_x, reference_spectrum_x, reference_spectrum_imag)
+
+            # Combine the real and imaginary parts to get the interpolated complex reference spectrum
+            interpolated_reference_spectrum = interpolated_reference_spectrum_real + 1j * interpolated_reference_spectrum_imag
+        X_samp = X_samp / interpolated_reference_spectrum
+        # X_samp = X_samp / refAvg[:len(X_samp), 1]  # Referencing sample data to reference data
         mask = [i for i in range(len(xcm_samp)) if xcm_samp[i] < resLB or resUB < xcm_samp[
             i]]  # Find desired frequency range excluding resonance(s)
         p = np.poly1d(np.polyfit(xcm_samp[mask], np.angle(X_samp[mask]), 2))  # Fitting with a line

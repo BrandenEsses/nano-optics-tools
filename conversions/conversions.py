@@ -159,15 +159,16 @@ def convert_axz():
         print(complete_label)
         samp_intfgm = np.array(spectrum['data']).astype(float)
         stage_pos_mm = np.array(spectrum['stage_pos_mm']).astype(float)
-        samp_data = np.transpose(np.stack((1000*stage_pos_mm,samp_intfgm))) # Factor of 1000 to get mm -> µm
+        samp_data = np.transpose(np.stack((10**6*stage_pos_mm,samp_intfgm))) # Factor of 1000 to get mm -> µm
         samp_data_len_rows = len(samp_data)
         ref_data_len_rows = len(ref_data)
         samp_data_len_cols = len(samp_data[0,:])
         ref_data_len_cols = len(ref_data[0,:])
         diff_rows = samp_data_len_rows - ref_data_len_rows
         ref_cols = ref_data_len_cols
-        if samp_data_len_rows > ref_data_len_rows:
-            ref_data = np.append(ref_data, np.zeros((diff_rows,ref_cols)) + np.mean(ref_data, axis=0), axis = 0)
+        # if samp_data_len_rows > ref_data_len_rows:
+        #     ref_data = np.append(ref_data, np.zeros((diff_rows,ref_cols)) + np.mean(ref_data, axis=0), axis = 0)
+        # print(len(ref_data),len(samp_data))
         sampArray, refAvg = get_spectrum_from_interferogram(samp_data, ref_data, params)
         processed_spectra.append([complete_label,sampArray, refAvg])
         progress = time.time()
@@ -179,7 +180,7 @@ def convert_axz():
         go.Scatter(
             x=np.abs(spectrum[2][:, 0]),
             y=np.angle(spectrum[2][:, 1]),
-            mode='markers',
+            mode='lines',
             name="Phase"
         ),
         secondary_y=True,
@@ -189,7 +190,7 @@ def convert_axz():
         go.Scatter(
             x=np.abs(spectrum[2][:, 0]),
             y=np.abs(spectrum[2][:, 1]),
-            mode='markers',
+            mode='lines',
             name="Amplitude"
         ),
         secondary_y=False,
@@ -219,7 +220,7 @@ def convert_axz():
             go.Scatter(
                 x=np.abs(spectrum[1][:, 0]),
                 y=np.abs(spectrum[1][:, 1]),
-                mode='markers',
+                mode='lines',
                 name="Amplitude"
             ),
             secondary_y=True,
@@ -228,7 +229,7 @@ def convert_axz():
             go.Scatter(
                 x=np.abs(spectrum[1][:, 0]),
                 y=np.angle(spectrum[1][:, 1]),
-                mode='markers',
+                mode='lines',
                 name="Phase"
             ),
             secondary_y=False,
