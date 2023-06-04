@@ -20,15 +20,39 @@
         <form method=post enctype=multipart/form-data action="/conversions/axz">
             <div class="form-group row">
               <label for="axz_file" class="form-label">Upload an Anasys .axz file</label>
-              <input type=file name=axz_file class="form-control" id = "axz_file" required>
+              <input type=file name=axz_file class="form-control" id = "axz_file"  required>
             </div>
             <div class="form-group row">
               <label for="axz_ref" class="form-label">Upload reference interferogram(s)</label>
               <input type=file name=axz_ref class="form-control" id = "axz_ref" required>
             </div>
             <div class="form-group row">
-              <label for="channel" class="form-label">Name of data channel, leave to process all channels (e.g. "//ZI/DEV533/DEMODS/0/X")</label>
-              <input type=text name=data_channel class="form-control" id = "data_channel" required>
+              <label for="sample_label" class="form-label">Sample label; leave blank to process all samples (e.g. "Spectrum 1")</label>
+              <input type=text name=sample_label class="form-control" id = "sample_label" value = {{ form_values[0] }}>
+            </div>
+            <div class="form-group row">
+              <label for="channel" class="form-label">Data channel name; leave blank to process all channels (e.g. "//ZI/DEV533/DEMODS/0/X")</label>
+              <input type=text name=data_channel class="form-control" id = "data_channel" value = {{ form_values[1] }}>
+            </div>
+            <div class="form-group row">
+              <label for="minWN" class="form-label">Wavenumbers lower bound</label>
+              <input type=text name=minWN class="form-control" id = "minWN" value = {{ form_values[2] }} required>
+            </div>
+            <div class="form-group row">
+              <label for="maxWN" class="form-label">Wavenumbers upper bound</label>
+              <input type=text name=maxWN class="form-control" id = "maxWN" value = {{ form_values[3] }} required>
+            </div>
+            <div class="form-group row">
+              <label for="cutoff" class="form-label">Cutoff</label>
+              <input type=text name=cutoff class="form-control" id = "cutoff" value = {{ form_values[4] }} required>
+            </div>
+            <div class="form-group row">
+              <label for="cutoff" class="form-label">Resonance lower bound</label>
+              <input type=text name=resLB class="form-control" id = "resLB" value = {{ form_values[5] }} required>
+            </div>
+            <div class="form-group row">
+              <label for="cutoff" class="form-label">Resonance upper bound</label>
+              <input type=text name=resUB class="form-control" id = "resUB" value = {{ form_values[6] }} required>
             </div>
 {#            <div class="form-group row">#}
 {#              <label for="plot_spectra" class="form-label">Plot the spectra</label>#}

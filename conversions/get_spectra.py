@@ -105,12 +105,7 @@ def FourierTransform(pos_corr, intfgm_corr, zpad):
     return FT_sig, FT_freq
 
 def get_spectrum_from_interferogram(samp_data, ref_data, params):
-    minWN = 800
-    maxWN = 3000
-    cutoff = 10
-
-    resLB = 0
-    resUB = 0
+    minWN, maxWN, cutoff, resLB, resUB = params
     fitLB = resLB
     fitUB = resUB
 
@@ -145,20 +140,18 @@ def get_spectrum_from_interferogram(samp_data, ref_data, params):
     #%% Plot the averaged references
     xcm_ref = refAvg[:,0]
     X_ref = refAvg[:,1]
-
     sampArray = []
+    r = samp_data
     posM = r[cutoff:-cutoff, 0]
     # For loop is set up in case files have several scans saved together
     for j in range(int(r.shape[1] - 1)):
         intf = r[cutoff:-cutoff, j + 1]
         pos_corr, intfgm_corr = Baseline(posM, intf)  # Baseline correction
         FTsig_samp, FTfreq_samp = FourierTransform(pos_corr, intfgm_corr, 3)  # Fourier transform
-
         mask = [i for i in range(len(FTfreq_samp)) if
                 minWN < FTfreq_samp[i] and FTfreq_samp[i] < maxWN]  # Find desired frequency range
         xcm_samp = FTfreq_samp[mask]  # Restrict data to only desired frequency range
         X_samp = FTsig_samp[mask]
-
         if len(sampArray) == 0:  # Best way I could think of to make the shape of sampArray work for vstack
             sampArray = np.array([xcm_samp])
         #            if refAvg.shape[0] != sampArray.shape[1]: #Check that the references and the sample are the same length
@@ -175,6 +168,5 @@ def get_spectrum_from_interferogram(samp_data, ref_data, params):
         p = np.poly1d(np.polyfit(xcm_samp[mask], np.angle(X_samp[mask]), 2))  # Fitting with a line
         X_samp = X_samp * np.exp(-1j * p(xcm_samp))
         sampArray = np.vstack((sampArray[:, :2150], X_samp[:2150]))
-
     sampArray = np.transpose(sampArray)  # Now all the reference arrays are in a matrix with xcm as the first column and the fourier transformed data in the next columns
     return (sampArray,refAvg)

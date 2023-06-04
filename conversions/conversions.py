@@ -65,7 +65,7 @@ def get_interferograms(snom_spectra):
             sweep_channel = channel_scan[8].text
             sweep_data_encoded = channel_scan[9].text
             sweep_data_decoded = base64string_to_decimal(sweep_data_encoded)
-            stage_pos_mm = np.linspace(sweep_start, sweep_end, len(sweep_data_decoded))
+            stage_pos_mm = np.array(np.linspace(sweep_start, sweep_end, len(sweep_data_decoded)))
             channel_scan_dict.update({'label': label})
             channel_scan_dict.update({'data_channel': sweep_channel})
             channel_scan_dict.update({'stage_pos_mm': stage_pos_mm})
@@ -108,31 +108,66 @@ def get_spectra_interferograms(filepath):
 
 @conversions_blueprint.route('/', methods=['GET','POST'])
 def conversions():
-    return render_template("conversions.html", title="File Conversions", figures = False)
+    try:
+        sample_label = session["axz_sample_label"]
+        data_channel = session["axz_data_channel"]
+        minWN = int(session["axz_minWN"])
+        maxWN = int(session["axz_maxWN"])
+        cutoff = int(session["axz_cutoff"])
+        resLB = int(session["axz_resLB"])
+        resUB = int(session["axz_resUB"])
+    except:
+        sample_label = ""
+        data_channel = ""
+        minWN = 1650
+        maxWN = 1800
+        cutoff = 10
+        resLB = 0
+        resUB = 0
+    params = (sample_label, data_channel, minWN, maxWN, cutoff, resLB, resUB)
+    return render_template("conversions.html", title="File Conversions", figures = False, form_values = params)
 
 @conversions_blueprint.route('/axz', methods=['POST'])
 def convert_axz():
     axz_file = request.files["axz_file"]
     axz_ref = request.files["axz_ref"]
+    sample_label = request.form.get("sample_label")
     data_channel = request.form.get("data_channel")
+    minWN = int(request.form.get("minWN"))
+    maxWN = int(request.form.get("maxWN"))
+    cutoff = int(request.form.get("cutoff"))
+    resLB = int(request.form.get("resLB"))
+    resUB = int(request.form.get("resUB"))
+    session["axz_sample_label"] = sample_label
+    session["axz_data_channel"] = data_channel
+    session["axz_minWN"] = minWN
+    session["axz_maxWN"] = maxWN
+    session["axz_cutoff"] = cutoff
+    session["axz_resLB"] = resLB
+    session["axz_resUB"] = resUB
     spectra, heightmaps = get_spectra_interferograms(axz_file)
     ref_data = np.loadtxt(axz_ref, delimiter='\t')
-    minWN = 1650
-    maxWN = 1800
-    cutoff = 10
-    resLB = 0
-    resUB = 0
     params = (minWN,maxWN,cutoff,resLB,resUB)
     processed_spectra = []
     start = time.time()
     for spectrum in spectra:
-        if spectrum['data_channel'] != data_channel and spectrum['data_channel'] != "":
+        if spectrum['data_channel'] != data_channel and data_channel != "":
+            continue
+        if spectrum["label"] != sample_label and sample_label != "":
             continue
         complete_label = spectrum["label"] + " - " + spectrum['data_channel']
         print(complete_label)
         samp_intfgm = np.array(spectrum['data']).astype(float)
         stage_pos_mm = np.array(spectrum['stage_pos_mm']).astype(float)
-        samp_data = np.transpose(np.stack((stage_pos_mm,samp_intfgm)))
+        samp_data = np.transpose(np.stack((1000*stage_pos_mm,samp_intfgm))) # Factor of 1000 to get mm -> µm
+        samp_data_len_rows = len(samp_data)
+        ref_data_len_rows = len(ref_data)
+        samp_data_len_cols = len(samp_data[0,:])
+        ref_data_len_cols = len(ref_data[0,:])
+        diff_rows = samp_data_len_rows - ref_data_len_rows
+        ref_cols = ref_data_len_cols
+        if samp_data_len_rows > ref_data_len_rows:
+            ref_data = np.append(ref_data, np.zeros((diff_rows,ref_cols)) + np.mean(ref_data, axis=0), axis = 0)
         sampArray, refAvg = get_spectrum_from_interferogram(samp_data, ref_data, params)
         processed_spectra.append([complete_label,sampArray, refAvg])
         progress = time.time()
@@ -216,4 +251,12 @@ def convert_axz():
         fig2.update_yaxes(title_text="Phase (Rad)", secondary_y=True)
         plot_div = offline.plot(fig2, auto_open=False, output_type='div')
         plot_divs.append(plot_div)
-    return render_template("conversions.html", title="File Conversions", figures=True, plots = plot_divs)
+    sample_label = session["axz_sample_label"]
+    data_channel = session["axz_data_channel"]
+    minWN = session["axz_minWN"]
+    maxWN = session["axz_maxWN"]
+    cutoff = session["axz_cutoff"]
+    resLB = session["axz_resLB"]
+    resUB = session["axz_resUB"]
+    params = (sample_label, data_channel, minWN, maxWN, cutoff, resLB, resUB)
+    return render_template("conversions.html", title="File Conversions", figures=True, plots = plot_divs, form_values = params)
