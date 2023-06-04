@@ -28,11 +28,11 @@
             </div>
             <div class="form-group row">
               <label for="sample_label" class="form-label">Sample label; leave blank to process all samples (e.g. "Spectrum 1")</label>
-              <input type=text name=sample_label class="form-control" id = "sample_label" value = {{ form_values[0] }}>
+              <input type=text name=sample_label class="form-control" id = "sample_label" value = '{{ form_values[0] }}'>
             </div>
             <div class="form-group row">
               <label for="channel" class="form-label">Data channel name; leave blank to process all channels (e.g. "//ZI/DEV533/DEMODS/0/X")</label>
-              <input type=text name=data_channel class="form-control" id = "data_channel" value = {{ form_values[1] }}>
+              <input type=text name=data_channel class="form-control" id = "data_channel" value = '{{ form_values[1] }}'>
             </div>
             <div class="form-group row">
               <label for="minWN" class="form-label">Wavenumbers lower bound</label>
