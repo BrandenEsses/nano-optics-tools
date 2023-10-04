@@ -1,0 +1,31 @@
+{% extends "layout/page.html" %} {% set role = role %} {% block content %}
+<style type='text/css'>
+   hr {
+   margin: 2px;
+   }
+</style>
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+   <h1>APE Fitting</h1>
+</div>
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+   <div class="col-6">
+      <form method=post enctype=multipart/form-data action="/ape_fitting/plot">
+         <div class="form-group row">
+            <label for="formFile" class="form-label">Upload a file for fitting</label>
+            <input type=file name=ape_file class="form-control" required>
+            <input type=submit value=Upload class="form-control" id="formFile" required>
+         </div>
+      </form>
+   </div>
+</div>
+
+{% if figures %}
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+<div id="plot">{{ plot_div|safe }}</div>
+<br>
+<br>
+<br>
+</div>
+{% endif %}
+
+{% endblock %}
