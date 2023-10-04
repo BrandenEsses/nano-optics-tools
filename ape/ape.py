@@ -81,7 +81,7 @@ def ape_plotting():
     # print(r_squared3)
 
     layout = go.Layout(yaxis={'title': r'$\Large\textrm{' + column + '}$', 'automargin': True},
-                       xaxis={'title': r'$\Large\textrm{Wavelength (nm)}$', 'automargin': True}, height=750,
+                       xaxis={'title': r'$\Large\textrm{Wavelength (cm}^{-1}\textrm{)}$', 'automargin': True}, height=750,
                        width=1000,
                        template="none")
     figure = go.Figure(data=plot_data, layout=layout)
