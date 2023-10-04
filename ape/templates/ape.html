@@ -13,6 +13,13 @@
          <div class="form-group row">
             <label for="formFile" class="form-label">Upload a file for fitting</label>
             <input type=file name=ape_file class="form-control" required>
+             <label for="data_select">Which column should be fit?</label>
+                <select class="form-select" name="data_select" id="data_select">
+                  <option value="opo_xtal">opo_xtal</option>
+                  <option value="dfg_xtal">dfg_xtal</option>
+                  <option value="dfg_delay">dfg_delay</option>
+                  <option value="output (mW)">output (mW)</option>
+                </select>
             <input type=submit value=Upload class="form-control" id="formFile" required>
          </div>
       </form>
@@ -22,9 +29,7 @@
 {% if figures %}
 <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
 <div id="plot">{{ plot_div|safe }}</div>
-<br>
-<br>
-<br>
+<div id="table">{{ table_div|safe }}</div>
 </div>
 {% endif %}
 
