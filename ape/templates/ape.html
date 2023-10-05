@@ -13,14 +13,16 @@
          <div class="form-group row">
             <label for="formFile" class="form-label">Upload a file for fitting</label>
             <input type=file name=ape_file class="form-control" required>
-             <label for="data_select">Which column should be fit?</label>
-                <select class="form-select" name="data_select" id="data_select">
-                  <option value="opo_xtal">OPO Crystal</option>
-                  <option value="dfg_xtal">DFG Crystal</option>
-                  <option value="dfg_delay">DFG Delay</option>
-                  <option value="output (mW)">Output (mW)</option>
-                  <option value="OPO_WL (nm)">OPO Wavelength (nm)</option>
-                </select>
+         </div>
+          <div class="form-group row">
+              <label for="x_select">Which column contains the x-axis? (1 is the leftmost column)</label>
+              <input type=number name=x_select min="1" value="1" class="form-control" required>
+          </div>
+          <div class="form-group row">
+              <label for="data_select">Which column should be fit? (1 is the leftmost column)</label>
+              <input type=number name=data_select min="1" value="10" class="form-control" required>
+          </div>
+          <div class="form-group row">
             <input type=submit value=Upload class="form-control" id="formFile" required>
          </div>
       </form>
@@ -28,15 +30,14 @@
 <div class="card justify-content-left" style="width: 18rem;">
   <div class="card-body">
     <h5 class="card-title">How do I use this?</h5>
-      <p class="card-text">Input a .csv file that contains the following columns in any order. You can upload this .csv file and select which column to fit. The program will generate a plot of the data along with polynomial fits (linear order up to quartic), along with the best fit parameters in a table below the plot.<br><b>Note:</b> the column names in the .csv file much exactly match the following:<br>
-      <ul class="list-group">
-    <li class="list-group-item"><b>wavenumber (cm-1)</b><br>The DFG wavelength in wavenumbers (cm-1)</li>
-    <li class="list-group-item"><b>dfg_xtal</b><br>DFG crystal position (from APE Carmina)</li>
-    <li class="list-group-item"><b>dfg_delay</b><br>DFG delay (from APE Carmina)</li>
-    <li class="list-group-item"><b>output (mW)</b><br>DFG output power (from powermeter, mW)</li>
-    <li class="list-group-item"><b>OPO_WL (nm)</b><br>OPO wavelength (from APE Carmina, nm)</li>
-</ul>
-
+      <p class="card-text">Upload a .csv file and select which column to fit and which to use as the x-axis. The program will generate a plot of the selected column along with polynomial fits (linear order up to quartic), along with the best fit parameters in a table below the plot.<br>
+{#<ul class="list-group">#}
+{#    <li class="list-group-item"><b>wavenumber (cm-1)</b><br>The DFG wavelength in wavenumbers (cm-1)</li>#}
+{#    <li class="list-group-item"><b>dfg_xtal</b><br>DFG crystal position (from APE Carmina)</li>#}
+{#    <li class="list-group-item"><b>dfg_delay</b><br>DFG delay (from APE Carmina)</li>#}
+{#    <li class="list-group-item"><b>output (mW)</b><br>DFG output power (from powermeter, mW)</li>#}
+{#    <li class="list-group-item"><b>OPO_WL (nm)</b><br>OPO wavelength (from APE Carmina, nm)</li>#}
+{#</ul>#}
     </p>
   </div>
 </div>

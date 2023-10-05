@@ -26,17 +26,25 @@ def ape_fitting():
 @ape_blueprint.route('/plot', methods=['POST'])
 def ape_plotting():
     plot_data = []
-    column = request.form.get('data_select')
+    data_column = int(request.form.get('data_select'))
+    x_axis = int(request.form.get('x_select'))
     file = request.files['ape_file']
     file_content = np.loadtxt(file, delimiter = ",", skiprows=1)
     file.seek(0)
-    header = file.readline()
-    string_header = header.decode(encoding='utf-8').replace('\r\n','').split(',')
-    data_index = string_header.index(column)
-    wavelength = file_content[:,0]
-    selected_data = file_content[:,data_index]
+    # header = file.readline()
+    # string_header = header.decode(encoding='utf-8').replace('\r\n','').split(',')
+    # data_index = string_header.index(column)
+    try:
+        wavelength = file_content[:,x_axis-1]
+    except:
+        return f"Error selecting the x axis. Did you mean to pick index {x_axis}?"
+    try:
+        selected_data = file_content[:,data_column-1]
+    except:
+        return f"Error selecting the y axis data. Did you mean to pick index {data_column}?"
+
     x_range = np.linspace(np.min(wavelength), np.max(wavelength), 100)
-    plot_data.append(go.Scatter(x=wavelength, y=selected_data, mode='markers', name=r'$\textrm{' + column + '}$'))
+    plot_data.append(go.Scatter(x=wavelength, y=selected_data, mode='markers', name=r'$\textrm{Column ' + str(data_column) + '}$'))
 
     popt2, pcov2 = curve_fit(func2, wavelength, selected_data, p0=None)
     popt3, pcov3 = curve_fit(func3, wavelength, selected_data, p0=None)
@@ -80,7 +88,7 @@ def ape_plotting():
     # print(r_squared3)
 
     layout = go.Layout(title=r'$\Large\textrm{Fitting}$',
-                       yaxis={'title': r'$\textrm{' + column + '}$', 'automargin': True, 'tickformat':'none'},
+                       yaxis={'title': r'$\textrm{Column ' + str(data_column) + '}$', 'automargin': True, 'tickformat':'none'},
                        xaxis={'title': r'$\textrm{Wavelength (cm}^{-1}\textrm{)}$', 'automargin': True, 'tickformat':'none'},
                        template="none", height=500, width=666.67)
 
