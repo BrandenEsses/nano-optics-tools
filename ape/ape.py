@@ -36,7 +36,7 @@ def ape_plotting():
     wavelength = file_content[:,0]
     selected_data = file_content[:,data_index]
     x_range = np.linspace(np.min(wavelength), np.max(wavelength), 100)
-    plot_data.append(go.Scatter(x=wavelength, y=selected_data, mode='markers', name=column))
+    plot_data.append(go.Scatter(x=wavelength, y=selected_data, mode='markers', name=r'$\textrm{' + column + '}$'))
 
     popt2, pcov2 = curve_fit(func2, wavelength, selected_data, p0=None)
     popt3, pcov3 = curve_fit(func3, wavelength, selected_data, p0=None)
@@ -82,7 +82,7 @@ def ape_plotting():
     layout = go.Layout(title=r'$\Large\textrm{Fitting}$',
                        yaxis={'title': r'$\textrm{' + column + '}$', 'automargin': True, 'tickformat':'none'},
                        xaxis={'title': r'$\textrm{Wavelength (cm}^{-1}\textrm{)}$', 'automargin': True, 'tickformat':'none'},
-                       template="none")
+                       template="none", height=500, width=666.67)
 
     figure = go.Figure(data=plot_data, layout=layout)
     figure.update_layout(
