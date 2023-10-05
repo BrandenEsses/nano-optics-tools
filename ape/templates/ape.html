@@ -24,6 +24,12 @@
          </div>
       </form>
    </div>
+<div class="card" style="width: 18rem;">
+  <div class="card-body">
+    <h5 class="card-title">What is this?</h5>
+    <p class="card-text">Here's some information so you, the user, knows what is going on here!</p>
+  </div>
+</div>
 </div>
 
 {% if figures %}
@@ -32,5 +38,7 @@
 <div id="table">{{ table_div|safe }}</div>
 </div>
 {% endif %}
-
+<script>
+    document.getElementById('plot').scrollIntoView();
+</script>
 {% endblock %}

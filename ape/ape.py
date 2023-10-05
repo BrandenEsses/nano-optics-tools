@@ -33,7 +33,6 @@ def ape_plotting():
     header = file.readline()
     string_header = header.decode(encoding='utf-8').replace('\r\n','').split(',')
     data_index = string_header.index(column)
-    print(string_header, data_index, column)
     wavelength = file_content[:,0]
     selected_data = file_content[:,data_index]
     x_range = np.linspace(np.min(wavelength), np.max(wavelength), 100)
@@ -72,7 +71,7 @@ def ape_plotting():
     # print(r_squared3)
 
     # 5 parameters
-    residuals5 = selected_data - func4(wavelength, *popt4)
+    residuals5 = selected_data - func5(wavelength, *popt5)
     ss_res5 = np.sum(residuals5 ** 2)
     ss_tot5 = np.sum((selected_data - np.mean(selected_data)) ** 2)
     r_squared5 = 1 - (ss_res5 / ss_tot5)
@@ -80,10 +79,11 @@ def ape_plotting():
     plot_data.append(go.Scatter(x=x_range, y=y_pred5, mode='lines', name=r"$x^4$"))
     # print(r_squared3)
 
-    layout = go.Layout(yaxis={'title': r'$\Large\textrm{' + column + '}$', 'automargin': True},
-                       xaxis={'title': r'$\Large\textrm{Wavelength (cm}^{-1}\textrm{)}$', 'automargin': True}, height=750,
-                       width=1000,
+    layout = go.Layout(title=r'$\Large\textrm{Fitting}$',
+                       yaxis={'title': r'$\textrm{' + column + '}$', 'automargin': True, 'tickformat':'none'},
+                       xaxis={'title': r'$\textrm{Wavelength (cm}^{-1}\textrm{)}$', 'automargin': True, 'tickformat':'none'},
                        template="none")
+
     figure = go.Figure(data=plot_data, layout=layout)
     figure.update_layout(
         font=dict(
@@ -97,9 +97,9 @@ def ape_plotting():
     A4, B4, C4, D4 = popt4
     A5, B5, C5, D5, E5 = popt5
     plot_div = offline.plot(figure, auto_open=False, output_type='div')
-    table_layout = go.Layout(title=r'$\large A + Bx + Cx^2 + Dx^3 + Ex^4$')
-    table = go.Figure(data=[go.Table(header=dict(values=['A', 'B', 'C', 'D', 'E', f'$R^2$']),
-                                   cells=dict(values=[[A2,A3,A4,A5], [B2,B3,B4,B5], ['-',C3,C4,C5], ['-','-',D4,D5],['-','-','-',E5],[r_squared2,r_squared3,r_squared4,r_squared5]]))], layout=table_layout)
+    table_layout = go.Layout(title=r'$\textrm{Fit function: }A + Bx + Cx^2 + Dx^3 + Ex^4$')
+    table = go.Figure(data=[go.Table(header=dict(values=['Order',f'$A$', f'$B$', f'$C$', f'$D$', f'$E$', f'$R^2$']),
+                                   cells=dict(values=[['Linear','Quadratic','Cubic','Quartic'],[A2,A3,A4,A5], [B2,B3,B4,B5], ['-',C3,C4,C5], ['-','-',D4,D5],['-','-','-',E5],[r_squared2,r_squared3,r_squared4,r_squared5]]))], layout=table_layout)
     table_div = offline.plot(table, auto_open=False, output_type='div')
     return render_template("ape.html",title="APE Fitting", figures=True, plot_div=plot_div, table_div=table_div)
 
