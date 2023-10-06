@@ -21,19 +21,29 @@ def func5(x, A, B, C, D, E):
 
 @ape_blueprint.route('/', methods=['GET','POST'])
 def ape_fitting():
-    return render_template("ape.html", title="APE Fitting", figures = False)
+    try:
+        data_column = session['data_column']
+        x_axis = session['x_axis']
+        header = session['header']
+    except:
+        data_column = 10
+        x_axis = 1
+        header = True
+    return render_template("ape.html", title="APE Fitting", figures = False,
+                           data_column=data_column, x_axis=x_axis, header=header)
 
 @ape_blueprint.route('/plot', methods=['POST'])
 def ape_plotting():
     plot_data = []
     data_column = int(request.form.get('data_select'))
     x_axis = int(request.form.get('x_select'))
+    header = int(bool(request.form.getlist('header_check')))
+    session['data_column'] = data_column
+    session['x_axis'] = x_axis
+    session['header'] = header
     file = request.files['ape_file']
-    file_content = np.loadtxt(file, delimiter = ",", skiprows=1)
+    file_content = np.loadtxt(file, delimiter = ",", skiprows=header)
     file.seek(0)
-    # header = file.readline()
-    # string_header = header.decode(encoding='utf-8').replace('\r\n','').split(',')
-    # data_index = string_header.index(column)
     try:
         wavelength = file_content[:,x_axis-1]
     except:
@@ -106,8 +116,7 @@ def ape_plotting():
     A5, B5, C5, D5, E5 = popt5
     plot_div = offline.plot(figure, auto_open=False, output_type='div')
     table_layout = go.Layout(title=r'$\textrm{Fit function: }A + Bx + Cx^2 + Dx^3 + Ex^4$')
-    table = go.Figure(data=[go.Table(header=dict(values=['Order',f'$A$', f'$B$', f'$C$', f'$D$', f'$E$', f'$R^2$']),
+    table = go.Figure(data=[go.Table(header=dict(values=['Order',r'$A$', r'$B$', r'$C$', r'$D$', r'$E$', r'$R^2$']),
                                    cells=dict(values=[['Linear','Quadratic','Cubic','Quartic'],[A2,A3,A4,A5], [B2,B3,B4,B5], ['-',C3,C4,C5], ['-','-',D4,D5],['-','-','-',E5],[r_squared2,r_squared3,r_squared4,r_squared5]]))], layout=table_layout)
     table_div = offline.plot(table, auto_open=False, output_type='div')
-    return render_template("ape.html",title="APE Fitting", figures=True, plot_div=plot_div, table_div=table_div)
-
+    return render_template("ape.html",title="APE Fitting", figures=True, plot_div=plot_div, table_div=table_div, data_column=data_column, x_axis=x_axis, header=header)

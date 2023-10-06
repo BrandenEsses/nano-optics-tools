@@ -15,12 +15,20 @@
             <input type=file name=ape_file class="form-control" required>
          </div>
           <div class="form-group row">
+          <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="{{ header }}" id="header_check" name="header_check">
+          <label class="form-check-label" for="header_check">
+            Does this file have a header? (i.e. column titles)
+          </label>
+        </div>
+          </div>
+          <div class="form-group row">
               <label for="x_select">Which column contains the x-axis? (1 is the leftmost column)</label>
-              <input type=number name=x_select min="1" value="1" class="form-control" required>
+              <input type=number name=x_select min="1" value="{{ x_axis }}" class="form-control" required>
           </div>
           <div class="form-group row">
               <label for="data_select">Which column should be fit? (1 is the leftmost column)</label>
-              <input type=number name=data_select min="1" value="10" class="form-control" required>
+              <input type=number name=data_select min="1" value="{{ data_column }}" class="form-control" required>
           </div>
           <div class="form-group row">
             <input type=submit value=Upload class="form-control" id="formFile" required>
@@ -31,13 +39,6 @@
   <div class="card-body">
     <h5 class="card-title">How do I use this?</h5>
       <p class="card-text">Upload a .csv file and select which column to fit and which to use as the x-axis. The program will generate a plot of the selected column along with polynomial fits (linear order up to quartic), along with the best fit parameters in a table below the plot.<br>
-{#<ul class="list-group">#}
-{#    <li class="list-group-item"><b>wavenumber (cm-1)</b><br>The DFG wavelength in wavenumbers (cm-1)</li>#}
-{#    <li class="list-group-item"><b>dfg_xtal</b><br>DFG crystal position (from APE Carmina)</li>#}
-{#    <li class="list-group-item"><b>dfg_delay</b><br>DFG delay (from APE Carmina)</li>#}
-{#    <li class="list-group-item"><b>output (mW)</b><br>DFG output power (from powermeter, mW)</li>#}
-{#    <li class="list-group-item"><b>OPO_WL (nm)</b><br>OPO wavelength (from APE Carmina, nm)</li>#}
-{#</ul>#}
     </p>
   </div>
 </div>
@@ -50,6 +51,9 @@
 </div>
 {% endif %}
 <script>
-    document.getElementById('plot').scrollIntoView();
+    if ({{ header }}){
+        document.getElementById("header_check").checked = true;
+    }
+    document.getElementById('plot').scrollIntoView({ block: 'end',  behavior: 'smooth' });
 </script>
 {% endblock %}
