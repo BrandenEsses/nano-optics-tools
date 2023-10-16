@@ -19,8 +19,45 @@
             <label for="wavenumbers" class="form-label">Wavenumbers (cm-1)</label>
             <input type=number id="wavenumbers" class="form-control" onchange="convert(this)">
          </div>
+          <div class="form-group row">
+            <input type="button" class="btn btn-outline-primary" value="Clear" onclick="clear_convert_calc()">
+          </div>
       </form>
    </div>
+</div>
+
+<div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
+   <h3>&Chi;3 - APE DFG Calculator</h3>
+
+    <div class="col-6">
+      <form method=post enctype=multipart/form-data>
+          <div class="form-group row">
+            <label for="ape_fundamental" class="form-label">Fundamental Wavelength (nm)</label>
+            <input type=number id="ape_fundamental" class="form-control" value = 1030 onchange="ape_calc()">
+          </div>
+          <div class="form-group row">
+            <label for="ape_signal" class="form-label">Signal Wavelength (nm)</label>
+            <input type=number id="ape_signal" class="form-control" onchange="ape_calc()">
+          </div>
+          <div class="form-group row">
+            <label for="ape_idler" class="form-label">Idler Wavelength (cm-1)</label>
+            <input type=number id="ape_idler" class="form-control" onchange="ape_calc()">
+          </div>
+          <div class="form-group row">
+            <label for="ape_dfg" class="form-label">DFG Output (cm-1)</label>
+            <input type=number id="ape_dfg" class="form-control" onchange="ape_calc()">
+          </div>
+          <div class="form-group row">
+            <input type="button" class="btn btn-outline-primary" value="Clear" onclick="clear_ape_calc()">
+          </div>
+      </form>
+        <div class="card justify-content-left" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">How do I use this?</h5>
+              <p class="card-text">Enter either (1) the fundamental and signal wavelengths (in nm), or (2) the idler and DFG output wavelengths (in cm-1). This will compute the other two quantities.</p>
+          </div>
+        </div>
+    </div>
 </div>
 
 <div class="container-fluid shadow-lg p-3 mb-5 bg-white rounded">
@@ -47,10 +84,65 @@
             <label for="dfg_out" class="form-label">DFG Output (nm)</label>
             <input type=number id="dfg_out" class="form-control" onchange="twins_calc()">
           </div>
+            <div class="form-group row">
+            <input type="button" class="btn btn-outline-primary" value="Clear" onclick="clear_twins_calc()">
+          </div>
       </form>
+        <div class="card justify-content-left" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">How do I use this?</h5>
+              <p class="card-text">Enter all but one of the quantities. This will compute the missing value.</p>
+          </div>
+        </div>
     </div>
 </div>
 <script>
+function ape_calc() {
+     var empty_fields = 0;
+     var empty_field_names = [];
+
+     var ape_fundamental = parseFloat(document.getElementById("ape_fundamental").value);
+     const ape_fundamental_element = document.getElementById("ape_fundamental");
+     if (!ape_fundamental) {
+       empty_fields++;
+       empty_field_names.push("ape_fundamental");
+     }
+
+     var ape_signal = parseFloat(document.getElementById("ape_signal").value);
+     const ape_signal_element = document.getElementById("ape_signal");
+     if (!ape_signal) {
+       empty_fields++;
+       empty_field_names.push("ape_signal");
+     }
+     var ape_idler = parseFloat(document.getElementById("ape_idler").value);
+     const ape_idler_element = document.getElementById("ape_idler");
+     if (!ape_idler) {
+       empty_fields++;
+       empty_field_names.push("ape_idler");
+     }
+     var ape_dfg = parseFloat(document.getElementById("ape_dfg").value);
+     const ape_dfg_element = document.getElementById("ape_dfg");
+     if (!ape_dfg) {
+       empty_fields++;
+       empty_field_names.push("ape_dfg");
+     }
+
+     if (empty_fields == 2) {
+       if (empty_field_names.includes("ape_idler") && empty_field_names.includes("ape_dfg"))  {
+         var ape_idler_calc = 10000000/ape_fundamental - 10000000/ape_signal;
+         ape_idler_element.value = ape_idler_calc.toFixed(2);
+         var ape_dfg_calc = 10000000/ape_signal - ape_idler_calc;
+         ape_dfg_element.value = ape_dfg_calc.toFixed(2);
+       }
+       if (empty_field_names.includes("ape_fundamental") && empty_field_names.includes("ape_signal")) {
+         var ape_signal_calc = 10000000 /(ape_idler + ape_dfg);
+         ape_signal_element.value = ape_signal_calc.toFixed(2);
+         var ape_fundamental_calc = 10000000 /(ape_idler + 10000000/ape_signal_calc);
+         ape_fundamental_element.value = ape_fundamental_calc.toFixed(2);
+       }
+     }
+   }
+
    function twins_calc() {
      var empty_fields = 0;
      var empty_field_name = "";
@@ -87,23 +179,23 @@
      if (empty_fields == 1) {
        if (empty_field_name == "twin1_signal") {
          var twin1_signal_calc = 1 / (1 / 515 - 1 / twin1_idler);
-         twin1_signal_element.value = twin1_signal_calc;
+         twin1_signal_element.value = twin1_signal_calc.toFixed(2);;
        }
        if (empty_field_name == "twin1_idler") {
          var twin1_idler_calc = 1 / (1 / 515 - 1 / twin1_signal);
-         twin1_idler_element.value = twin1_idler_calc;
+         twin1_idler_element.value = twin1_idler_calc.toFixed(2);;
        }
        if (empty_field_name == "twin2_signal") {
          var twin2_signal_calc = 1 / (1 / 1030 - 1 / twin2_idler);
-         twin2_signal_element.value = twin2_signal_calc;
+         twin2_signal_element.value = twin2_signal_calc.toFixed(2);;
        }
        if (empty_field_name == "twin2_idler") {
          var twin2_idler_calc = 1 / (1 / 1030 - 1 / twin2_signal);
-         twin2_idler_element.value = twin2_idler_calc;
+         twin2_idler_element.value = twin2_idler_calc.toFixed(2);;
        }
        if (empty_field_name == "dfg_out") {
          var dfg_out_calc = 1 / (1 / twin2_signal - 1 / twin1_idler);
-         dfg_out_element.value = dfg_out_calc;
+         dfg_out_element.value = dfg_out_calc.toFixed(2);;
        }
      }
    }
@@ -122,5 +214,22 @@
        var wavenumbers_calc = 10000000 / wavelength;
        wavenumbers_element.value = wavenumbers_calc.toFixed(2);
      }
+   }
+   function clear_ape_calc() {
+    document.getElementById("ape_fundamental").value = null;
+    document.getElementById("ape_signal").value = null;
+    document.getElementById("ape_idler").value = null;
+    document.getElementById("ape_dfg").value = null;
+   }
+   function clear_convert_calc() {
+    document.getElementById("wavenumbers").value = null;
+    document.getElementById("wavelength").value = null;
+   }
+   function clear_twins_calc() {
+    document.getElementById("twin1_signal").value = null;
+    document.getElementById("twin1_idler").value = null;
+    document.getElementById("twin2_signal").value = null;
+    document.getElementById("twin2_idler").value = null;
+    document.getElementById("dfg_out").value = null;
    }
 </script> {% endblock %}
