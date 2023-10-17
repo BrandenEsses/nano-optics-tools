@@ -20,7 +20,7 @@
             <input type=number id="wavenumbers" class="form-control" onchange="convert(this)">
          </div>
           <div class="form-group row">
-            <input type="button" class="btn btn-outline-primary" value="Clear" onclick="clear_convert_calc()">
+            <input type="button" class="btn btn-outline-danger" value="Clear" onclick="clear_convert_calc()">
           </div>
       </form>
    </div>
@@ -48,10 +48,10 @@
             <input type=number id="ape_dfg" class="form-control" onchange="ape_calc()">
           </div>
           <div class="form-group row">
-            <input type="button" class="btn btn-outline-primary" value="Clear" onclick="clear_ape_calc()">
+            <input type="button" class="btn btn-outline-danger" value="Clear" onclick="clear_ape_calc()">
           </div>
       </form>
-        <div class="card justify-content-left" style="width: 18rem;">
+        <div class="card justify-content-left">
           <div class="card-body">
             <h5 class="card-title">How do I use this?</h5>
               <p class="card-text">Enter either (1) the fundamental and signal wavelengths (in nm), or (2) the idler and DFG output wavelengths (in cm-1). This will compute the other two quantities.</p>
@@ -85,10 +85,10 @@
             <input type=number id="dfg_out" class="form-control" onchange="twins_calc()">
           </div>
             <div class="form-group row">
-            <input type="button" class="btn btn-outline-primary" value="Clear" onclick="clear_twins_calc()">
+            <input type="button" class="btn btn-outline-danger" value="Clear" onclick="clear_twins_calc()">
           </div>
       </form>
-        <div class="card justify-content-left" style="width: 18rem;">
+        <div class="card justify-content-left">
           <div class="card-body">
             <h5 class="card-title">How do I use this?</h5>
               <p class="card-text">Enter all but one of the quantities. This will compute the missing value.</p>
